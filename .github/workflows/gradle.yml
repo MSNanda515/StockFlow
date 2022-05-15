@@ -1,4 +1,4 @@
-name: StockFlow CD
+name: StockFlow temp CD
 on: [push]
 jobs:
   build:
