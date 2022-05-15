@@ -1,9 +1,11 @@
-name: StockFlow temp CD
+name: StockFlow CI
 on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+
       - name: Deploy to heroku using an action
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
