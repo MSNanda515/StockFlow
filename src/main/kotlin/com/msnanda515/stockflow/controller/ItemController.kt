@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*
 
 
 @RestController
-@RequestMapping("/items")
+@RequestMapping("api/v1/items")
 class ItemController(
     val itemRepository: ItemRepository
 ) {
@@ -26,11 +26,12 @@ class ItemController(
     fun createItem(@RequestBody request: ItemRequestVM): ResponseEntity<Item> {
         val item = itemRepository.save(
             Item(
-            name = request.name,
-            description = request.description,
-            department = request.department,
-            status = request.status
-        )
+                itemNo = request.itemNo,
+                name = request.name,
+                description = request.description,
+                department = request.department,
+                status = request.status
+            )
         )
         return ResponseEntity(item, HttpStatus.CREATED)
     }

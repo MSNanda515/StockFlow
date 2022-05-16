@@ -11,9 +11,10 @@ import java.time.LocalDateTime
  */
 @Document
 data class Item(
+    var itemNo: Long,
     var name: String,
     var description: String,
-    var department: String,
+    var department: Department,
     var status: ItemStatus,
     @Id
     val id: ObjectId = ObjectId.get(),
@@ -22,9 +23,10 @@ data class Item(
 )
 
 class ItemRequestVM(
+    val itemNo: Long,
     val name: String,
     val description: String,
-    val department: String,
+    val department: Department,
     val status: ItemStatus,
 )
 
@@ -41,11 +43,10 @@ enum class ItemStatus {
  * items
  */
 enum class Department {
-
-    GRCY, // Grocery
-    ELEC, // Electric
-    HSLD, // Household
-    STRY, // Stationary
-    ATMB, // Automobile
-    MISC, // Miscellaneous
+    @JsonProperty("grocery") GRCY, // Grocery
+    @JsonProperty("electric") ELEC, // Electric
+    @JsonProperty("household") HSLD, // Household
+    @JsonProperty("stationary") STRY, // Stationary
+    @JsonProperty("automobile") ATMB, // Automobile
+    @JsonProperty("misc") MISC, // Miscellaneous
 }
