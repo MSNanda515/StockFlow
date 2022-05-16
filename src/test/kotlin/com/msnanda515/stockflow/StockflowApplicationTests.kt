@@ -10,9 +10,4 @@ class StockflowApplicationTests {
 	fun contextLoads() {
 	}
 
-	@Test
-	fun `fail test` () {
-		assert(false)
-	}
-
 }
