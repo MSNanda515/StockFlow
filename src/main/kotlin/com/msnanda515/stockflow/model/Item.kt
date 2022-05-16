@@ -1,5 +1,6 @@
 package com.msnanda515.stockflow.model
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
@@ -10,21 +11,29 @@ import java.time.LocalDateTime
  */
 @Document
 data class Item(
-    @Id
-    val id: ObjectId = ObjectId.get(),
     var name: String,
     var description: String,
-    var department: ItemStatus,
-    var status: Department,
+    var department: String,
+    var status: ItemStatus,
+    @Id
+    val id: ObjectId = ObjectId.get(),
     val createdDate: LocalDateTime = LocalDateTime.now(),
     val modifiedDate: LocalDateTime = LocalDateTime.now()
+)
+
+class ItemRequestVM(
+    val name: String,
+    val description: String,
+    val department: String,
+    val status: ItemStatus,
 )
 
 /**
  * Represents the status code for item
  */
 enum class ItemStatus {
-    ACTIVE, INACTIVE
+    @JsonProperty("active")  ACTIVE,
+    @JsonProperty("inactive") INACTIVE
 }
 
 /**
@@ -32,6 +41,7 @@ enum class ItemStatus {
  * items
  */
 enum class Department {
+
     GRCY, // Grocery
     ELEC, // Electric
     HSLD, // Household
