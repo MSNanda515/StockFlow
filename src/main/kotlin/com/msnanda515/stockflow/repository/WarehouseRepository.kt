@@ -4,4 +4,5 @@ import com.msnanda515.stockflow.model.Warehouse
 import org.springframework.data.mongodb.repository.MongoRepository
 
 interface WarehouseRepository : MongoRepository<Warehouse, String> {
+    fun findByWareNo(wareNo: Long): List<Warehouse>
 }

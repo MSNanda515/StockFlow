@@ -1,5 +1,6 @@
 package com.msnanda515.stockflow.service
 
+import com.msnanda515.stockflow.exception.AlreadyExistsException
 import com.msnanda515.stockflow.model.Warehouse
 import com.msnanda515.stockflow.model.WarehouseVM
 import com.msnanda515.stockflow.repository.WarehouseRepository
@@ -12,6 +13,11 @@ class WarehouseService(val warehouseRepository: WarehouseRepository) {
      * @param wareVm the view model of the warehouse to create
      */
     fun createWarehouse(wareVm: WarehouseVM) {
+        // only store the warehouse if warehouse No is unique
+        val wareExists = warehouseRepository.findByWareNo(wareVm.wareNo).isNotEmpty()
+        if (wareExists) {
+            throw AlreadyExistsException("Warehouse with id ${wareVm.wareNo} already exists")
+        }
         val ware = Warehouse.createWarehouse(wareVm)
         warehouseRepository.save(ware)
     }
@@ -21,5 +27,9 @@ class WarehouseService(val warehouseRepository: WarehouseRepository) {
      */
     fun getAllWarehouses(): List<Warehouse> {
         return warehouseRepository.findAll()
+    }
+
+    fun getWarehouse(wareNo: Long) {
+
     }
 }
