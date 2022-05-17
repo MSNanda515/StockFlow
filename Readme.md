@@ -14,4 +14,7 @@ Track the flow of your goods using this Inventory tracking web application.
 - Units shipped from warehouse to warehouse as pallets
 - Use Cases: 
   - Find all palettes for item in warehouse
-  - Find all  
+  - Find all 
+
+TODO:
+Find what happens when duplicate fields for unique warehouse
