@@ -19,7 +19,10 @@ data class Item(
     @Id
     val id: ObjectId = ObjectId.get(),
     val createdDate: LocalDateTime = LocalDateTime.now(),
-    val modifiedDate: LocalDateTime = LocalDateTime.now()
+    val modifiedDate: LocalDateTime = LocalDateTime.now(),
+
+    val pallets: MutableList<Pallet> = mutableListOf(),
+    val shipments: MutableList<Shipment> = mutableListOf(),
 )
 
 class ItemRequestVM(

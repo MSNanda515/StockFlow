@@ -1,1 +1,51 @@
-<H1>Hello, This is StockFlow with CI/CD</H1>
+<!--Headers-->
+<header th:insert="fragments/header.html"> </header>
+<!--Navbars-->
+<span th:insert="fragments/navbar.html"> </span>
+
+<!--Content-->
+
+<div class="container-fluid mx-auto px-5 py-4">
+    <h1>Dashboard</h1>
+
+    <div class="mt-4">
+        <button type="button" class="btn btn-primary mx-2">Add Item</button>
+        <button type="button" class="btn btn-primary mx-2">Add Warehouse</button>
+        <button type="button" class="btn btn-primary mx-2">Receive Shipment</button>
+        <button type="button" class="btn btn-primary mx-2">Send Shipment</button>
+    </div>
+
+    <H2 class="mt-5">Items</H2>
+
+    <a class="text-decoration-none text-reset mt-1" data-bs-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">
+        <div class="card">
+            <div class="card-body">
+                <div>
+                    Item No: 123, Name: Apple, Desc: Fruit, Units: 200
+                </div>
+                <div class="collapse multi-collapse mt-1 ms-4" id="multiCollapseExample1">
+                    PalletId: 222, Warehouse: 1, Aisle: 12, section: 1, level: 3
+                </div>
+            </div>
+        </div>
+    </a>
+
+
+    <a class="text-decoration-none text-reset" data-bs-toggle="collapse" href="#multiCollapseExample2" role="button" aria-expanded="false" aria-controls="multiCollapseExample2">
+        <div class="card">
+            <div class="card-body">
+                <div>
+                    Item No: 123, Name: Apple, Desc: Fruit, Units: 200
+                </div>
+                <div class="collapse multi-collapse mt-1 ms-4" id="multiCollapseExample2">
+                    PalletId: 222, Warehouse: 1, Aisle: 12, section: 1, level: 3
+                </div>
+            </div>
+        </div>
+    </a>
+
+
+</div>
+
+<!--Footer-->
+<span th:insert="fragments/footer.html"> </span>
