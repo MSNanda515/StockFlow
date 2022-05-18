@@ -8,6 +8,7 @@ import java.time.LocalDateTime
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
+import kotlin.math.ceil
 
 /**
  * Represents the model for an item in the warehouse
@@ -26,7 +27,26 @@ data class Item(
 
     val pallets: MutableList<Pallet> = mutableListOf(),
     val shipments: MutableList<Shipment> = mutableListOf(),
-)
+) {
+    /**
+     * Gets the number of pallets required to store the item
+     */
+    fun palletsRequired(units: Int): Int =
+        ceil(1.0 * units / department.palleteCap).toInt()
+
+    companion object {
+        /**
+         * Create an item object from the item view model
+         */
+        fun createItem(itemVm: ItemVM): Item {
+            var item = Item(
+                itemVm.itemNo, itemVm.name, itemVm.description, itemVm.department,
+                ItemStatus.ACTIVE
+            )
+            return item
+        }
+    }
+}
 
 class ItemVM(
     @field:Min(1)

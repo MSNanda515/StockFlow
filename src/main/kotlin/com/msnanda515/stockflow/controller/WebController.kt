@@ -47,8 +47,12 @@ class WebController(
     @GetMapping("/warehouse/create")
     fun getCreateWarehouse(model: Model): String {
         var wareVm = WarehouseVM.createVM()
+        val wares = warehouseService.getAllWarehouses()
         wareVm.wareNo = warehouseService.getNextWarehouseNo()
         model.addAttribute("ware", wareVm)
+        Util.addModelAttributesNavbar(
+            model, "Warehouse", wares
+        )
         return "createWarehouse"
     }
 
@@ -101,6 +105,7 @@ class WebController(
         model: Model
     ): String {
         if (bindingResult.hasErrors()) {
+            // Prepare the context for model and show the errors UI
             var wares = warehouseService.getAllWarehouses()
             val wareExist = wares.isNotEmpty()
             model.addAttribute("item", itemVM)
@@ -110,18 +115,8 @@ class WebController(
             )
             return "createItem"
         }
-//        else {
-//            return try {
-//                warehouseService.createWarehouse(wareVm)
-//                "index"
-//            } catch (exp: AlreadyExistsException) {
-//                bindingResult.addError(
-//                    FieldError("ware", "wareNo",
-//                        exp.message ?: "Warehouse Id should be unique")
-//                )
-//                "createWarehouse"
-//            }
-//        }
+
+        itemService.createItem(itemVM)
         return "index"
     }
 }
