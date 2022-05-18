@@ -5,12 +5,30 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDateTime
+import javax.validation.constraints.Min
+import javax.validation.constraints.NotBlank
 
 class WarehouseVM(
-    val wareNo: Long,
+    @field:Min(value = 1)
+    var wareNo: Long,
+    @field:NotBlank
     var name: String,
+    @field:NotBlank
     var location: String,
-)
+) {
+    companion object {
+        /**
+         * Creates an empty View Model
+         */
+        fun createVM(): WarehouseVM {
+            return WarehouseVM(
+                wareNo = 1,
+                name = "Name",
+                location = "Location"
+            )
+        }
+    }
+}
 @Document
 data class Warehouse(
     var wareNo: Long,
@@ -29,7 +47,7 @@ data class Warehouse(
             return Warehouse(
                 wareNo = wareVm.wareNo,
                 name = wareVm.name,
-                location = wareVm.location
+                location = wareVm.location,
             )
         }
     }

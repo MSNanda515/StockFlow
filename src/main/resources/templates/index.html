@@ -10,12 +10,12 @@
 
     <div class="mt-4">
         <button type="button" class="btn btn-primary mx-2">Add Item</button>
-        <button type="button" class="btn btn-primary mx-2">Add Warehouse</button>
+        <a href="/warehouse/create" type="button" class="btn btn-primary mx-2">Add Warehouse</a>
         <button type="button" class="btn btn-primary mx-2">Receive Shipment</button>
         <button type="button" class="btn btn-primary mx-2">Send Shipment</button>
     </div>
 
-    <H2 class="mt-5">Items</H2>
+    <H2 class="mt-5">Items: <span th:text="${selectedWareName}">All Items</span></H2>
 
     <a class="text-decoration-none text-reset mt-1" data-bs-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">
         <div class="card">

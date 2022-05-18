@@ -1,0 +1,41 @@
+<!--Headers-->
+<header th:insert="fragments/header.html"> </header>
+<!--Navbars-->
+<span th:insert="fragments/navbar.html"> </span>
+
+<!--Content-->
+<div class="container-fluid mx-auto px-5 py-4">
+    <h1>Create Item</h1>
+    <form th:object="${item}" th:action="@{/items/create}" method="post" style="width: 50%">
+        <div class="mb-3">
+            <label for="itemNo" class="form-label">Item No</label>
+            <input type="text" class="form-control" id="itemNo" aria-describedby="itemNoHelp"
+                   th:field="*{itemNo}">
+            <div id="itemNoHelp" class="form-text">Should be unique</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="itemName" class="form-label">Name</label>
+            <input type="text" class="form-control" id="itemName" th:field="*{name}">
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <input type="text" class="form-control" id="description" th:field="*{description}">
+        </div>
+        <div class="mb-3">
+            <label for="department" class="form-label">Department</label>
+            <select id="department" class="form-select" aria-label="Item Status" name="department"
+                    th:field="*{department}">
+                <option th:each="depOpt : ${T(com.msnanda515.stockflow.model.Department).values()}"
+                        th:value="${depOpt}" th:text="${depOpt.disp}" >
+                    One
+                </option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+
+</div>
+
+<!--Footer-->
+<span th:insert="fragments/footer.html"> </span>

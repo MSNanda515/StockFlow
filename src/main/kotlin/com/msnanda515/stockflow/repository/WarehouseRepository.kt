@@ -5,4 +5,10 @@ import org.springframework.data.mongodb.repository.MongoRepository
 
 interface WarehouseRepository : MongoRepository<Warehouse, String> {
     fun findByWareNo(wareNo: Long): List<Warehouse>
+
+    /**
+     * Finds the warehouse with the maximum wareNo
+     */
+    fun findTopByOrderByWareNoDesc(): Warehouse
+
 }

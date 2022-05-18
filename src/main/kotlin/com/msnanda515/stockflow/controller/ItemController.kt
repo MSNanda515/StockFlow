@@ -1,10 +1,9 @@
 package com.msnanda515.stockflow.controller
 
 import com.msnanda515.stockflow.model.Item
-import com.msnanda515.stockflow.model.ItemRequestVM
+import com.msnanda515.stockflow.model.ItemVM
 import com.msnanda515.stockflow.repository.ItemRepository
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -23,7 +22,7 @@ class ItemController(
     @PostMapping(
         consumes = ["application/json"],
     )
-    fun createItem(@RequestBody request: ItemRequestVM): ResponseEntity<Item> {
+    fun createItem(@RequestBody request: ItemVM): ResponseEntity<Item> {
         val item = itemRepository.save(
             Item(
                 itemNo = request.itemNo,

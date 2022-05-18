@@ -32,4 +32,12 @@ class WarehouseService(val warehouseRepository: WarehouseRepository) {
     fun getWarehouse(wareNo: Long) {
 
     }
+
+    /**
+     * Finds the next available warehouse No
+     */
+    fun getNextWarehouseNo(): Long {
+        return warehouseRepository.findTopByOrderByWareNoDesc()
+            .wareNo + 1
+    }
 }
