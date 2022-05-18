@@ -1,6 +1,7 @@
 package com.msnanda515.stockflow.controller
 
 import com.msnanda515.stockflow.model.Item
+import com.msnanda515.stockflow.model.ItemStatus
 import com.msnanda515.stockflow.model.ItemVM
 import com.msnanda515.stockflow.repository.ItemRepository
 import org.springframework.http.HttpStatus
@@ -29,7 +30,7 @@ class ItemController(
                 name = request.name,
                 description = request.description,
                 department = request.department,
-                status = request.status
+                status = ItemStatus.ACTIVE
             )
         )
         return ResponseEntity(item, HttpStatus.CREATED)

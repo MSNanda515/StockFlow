@@ -6,33 +6,68 @@
 <!--Content-->
 <div class="container-fluid mx-auto px-5 py-4">
     <h1>Create Item</h1>
-    <form th:object="${item}" th:action="@{/items/create}" method="post" style="width: 50%">
-        <div class="mb-3">
+
+    <form th:object="${item}" th:action="@{/items/create}" method="post"
+        class="row g-3">
+
+        <div class="mb-3 col-md-6">
             <label for="itemNo" class="form-label">Item No</label>
             <input type="text" class="form-control" id="itemNo" aria-describedby="itemNoHelp"
                    th:field="*{itemNo}">
             <div id="itemNoHelp" class="form-text">Should be unique</div>
+            <span th:if="${#fields.hasErrors('itemNo')}" th:errors="*{itemNo}" class="text-danger">error</span>
         </div>
 
-        <div class="mb-3">
+        <div class="mb-3 col-md-6">
             <label for="itemName" class="form-label">Name</label>
             <input type="text" class="form-control" id="itemName" th:field="*{name}">
         </div>
-        <div class="mb-3">
+
+        <div class="mb-3 col-md-8">
             <label for="description" class="form-label">Description</label>
             <input type="text" class="form-control" id="description" th:field="*{description}">
         </div>
-        <div class="mb-3">
+
+        <div class="mb-3 col-md-4">
             <label for="department" class="form-label">Department</label>
             <select id="department" class="form-select" aria-label="Item Status" name="department"
                     th:field="*{department}">
                 <option th:each="depOpt : ${T(com.msnanda515.stockflow.model.Department).values()}"
-                        th:value="${depOpt}" th:text="${depOpt.disp}" >
-                    One
+                        th:value="${depOpt}"  >
+                    <span th:text="${depOpt.disp}"></span>
+                    (Pallet Capacity: <span th:text="${depOpt.palleteCap}"></span>)
                 </option>
             </select>
         </div>
-        <button type="submit" class="btn btn-primary">Create</button>
+
+        <H2>Add Inventory</H2>
+        <div th:if="${wareExist}">
+            <div class="mb-3 col-md-6">
+                <label for="warehouseSelect" class="form-label">Warehouse</label>
+                <select id="warehouseSelect" class="form-select" aria-label="warehouseHelp"
+                        th:value="${inventory.wareNo}"  name="wareNo">
+                    <option th:each="w : ${wares}" th:value="${w.wareNo}">
+                        <span th:text="${w.wareNo}"></span>
+                    </option>
+                </select>
+                <div id="warehouseHelp" class="form-text">Pallets automatically assigned</div>
+            </div>
+            <div class="mb-3 col-md-6">
+                <label for="itemUnits" class="form-label">Units</label>
+                <input type="number" class="form-control" id="itemUnits" th:value="${inventory.units}" name="units">
+            </div>
+        </div>
+
+        <div th:unless="${wareExist}">
+            <a href="/warehouse/create" type="button" class="btn btn-primary mx-2" aria-label="createWareHelp">
+                Add Warehouse
+            </a>
+            <div id="createWareHelp" class="form-text">Create Warehouse First</div>
+        </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </div>
     </form>
 
 </div>

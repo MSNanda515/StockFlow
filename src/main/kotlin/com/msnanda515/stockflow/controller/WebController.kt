@@ -57,7 +57,7 @@ class WebController(
      */
     @PostMapping("/warehouse/create")
     fun postCreateWarehouse(@Valid @ModelAttribute("ware") wareVm: WarehouseVM,
-        bindingResult: BindingResult ): String {
+        bindingResult: BindingResult): String {
         if (bindingResult.hasErrors()) {
             return "createWarehouse"
         } else {
@@ -82,16 +82,42 @@ class WebController(
     @GetMapping("/items/create")
     fun getCreateItem(model: Model): String {
         var item = ItemVM.createItem()
+        var wares = warehouseService.getAllWarehouses()
+        val wareExist = wares.isNotEmpty()
+        var wareSelected: Int = 0
+        if (wareExist) {
+            var itemInventoryVM = ItemVM.InventoryVM(wares[wareSelected].wareNo, 0)
+            model.addAttribute("inventory", itemInventoryVM)
+        }
         model.addAttribute("item", item)
+        model.addAttribute("wareExist", wareExist)
+        Util.addModelAttributesNavbar(
+            model, if (wareExist) wares[wareSelected].name else "Warehouse", wares
+        )
+
         return "createItem"
     }
 
     @PostMapping("/items/create")
-    fun postCreateItem(@Valid @ModelAttribute("ware") wareVm: WarehouseVM,
-                            bindingResult: BindingResult ): String {
-//        if (bindingResult.hasErrors()) {
-//            return "createWarehouse"
-//        } else {
+    fun postCreateItem(
+        @Valid @ModelAttribute("item") itemVM: ItemVM,
+        bindingResult1: BindingResult,
+        @Valid @ModelAttribute("inventory") itemInventoryVM: ItemVM.InventoryVM,
+        bindingResult2: BindingResult,
+        model: Model
+    ): String {
+        if (bindingResult1.hasErrors() || bindingResult2.hasErrors()) {
+            var wares = warehouseService.getAllWarehouses()
+            val wareExist = wares.isNotEmpty()
+            model.addAttribute("item", itemVM)
+            model.addAttribute("inventory", itemInventoryVM)
+            model.addAttribute("wareExist", wareExist)
+            Util.addModelAttributesNavbar(
+                model, "ware", wares
+            )
+            return "createItem"
+        }
+//        else {
 //            return try {
 //                warehouseService.createWarehouse(wareVm)
 //                "index"

@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDateTime
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 
 /**
  * Represents the model for an item in the warehouse
@@ -34,10 +35,8 @@ class ItemVM(
     val name: String,
     @field:NotBlank
     val description: String,
-    @field:NotBlank
+    @field:NotNull
     val department: Department,
-    @field:NotBlank
-    val status: ItemStatus,
 ) {
     companion object {
         fun createItem(): ItemVM {
@@ -46,10 +45,15 @@ class ItemVM(
                 name = "Name",
                 description = "Desc",
                 department = Department.MISC,
-                status = ItemStatus.ACTIVE
             )
         }
     }
+
+     class InventoryVM(
+        var wareNo: Long,
+        @field:Min(0)
+        var units: Int,
+    )
 }
 
 /**
