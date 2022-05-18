@@ -37,6 +37,7 @@ class ItemVM(
     val description: String,
     @field:NotNull
     val department: Department,
+
 ) {
     companion object {
         fun createItem(): ItemVM {
@@ -48,12 +49,6 @@ class ItemVM(
             )
         }
     }
-
-     class InventoryVM(
-        var wareNo: Long,
-        @field:Min(0)
-        var units: Int,
-    )
 }
 
 /**

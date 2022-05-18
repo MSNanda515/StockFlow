@@ -21,11 +21,13 @@
         <div class="mb-3 col-md-6">
             <label for="itemName" class="form-label">Name</label>
             <input type="text" class="form-control" id="itemName" th:field="*{name}">
+            <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger">error</span>
         </div>
 
         <div class="mb-3 col-md-8">
             <label for="description" class="form-label">Description</label>
             <input type="text" class="form-control" id="description" th:field="*{description}">
+            <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="text-danger">error</span>
         </div>
 
         <div class="mb-3 col-md-4">
@@ -40,9 +42,12 @@
             </select>
         </div>
 
+
         <H2>Add Inventory</H2>
+
         <div th:if="${wareExist}">
             <div class="mb-3 col-md-6">
+
                 <label for="warehouseSelect" class="form-label">Warehouse</label>
                 <select id="warehouseSelect" class="form-select" aria-label="warehouseHelp"
                         th:value="${inventory.wareNo}"  name="wareNo">
@@ -52,6 +57,7 @@
                 </select>
                 <div id="warehouseHelp" class="form-text">Pallets automatically assigned</div>
             </div>
+
             <div class="mb-3 col-md-6">
                 <label for="itemUnits" class="form-label">Units</label>
                 <input type="number" class="form-control" id="itemUnits" th:value="${inventory.units}" name="units">
@@ -68,6 +74,9 @@
         <div class="col-12">
             <button type="submit" class="btn btn-primary mt-3">Submit</button>
         </div>
+        <ul>
+            <li th:each="err : ${#fields.errors('inventory.*')}" th:text="${err}" />
+        </ul>
     </form>
 
 </div>
