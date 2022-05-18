@@ -45,22 +45,23 @@
 
         <H2>Add Inventory</H2>
 
-        <div th:if="${wareExist}">
+        <div th:if="${wareExist}" class="row g-3">
             <div class="mb-3 col-md-6">
-
                 <label for="warehouseSelect" class="form-label">Warehouse</label>
                 <select id="warehouseSelect" class="form-select" aria-label="warehouseHelp"
-                        th:value="${inventory.wareNo}"  name="wareNo">
+                        th:field="*{wareNo}"  name="wareNo">
                     <option th:each="w : ${wares}" th:value="${w.wareNo}">
                         <span th:text="${w.wareNo}"></span>
                     </option>
                 </select>
-                <div id="warehouseHelp" class="form-text">Pallets automatically assigned</div>
+                <div id="warehouseHelp" class="form-text">Pallets automatically assigned;<br/>
+                    Can add item to other warehouses from dashboard</div>
             </div>
 
             <div class="mb-3 col-md-6">
                 <label for="itemUnits" class="form-label">Units</label>
-                <input type="number" class="form-control" id="itemUnits" th:value="${inventory.units}" name="units">
+                <input type="number" class="form-control" id="itemUnits" th:field="*{units}" name="units">
+                <span th:if="${#fields.hasErrors('units')}" th:errors="*{units}" class="text-danger">error</span>
             </div>
         </div>
 
@@ -68,15 +69,13 @@
             <a href="/warehouse/create" type="button" class="btn btn-primary mx-2" aria-label="createWareHelp">
                 Add Warehouse
             </a>
-            <div id="createWareHelp" class="form-text">Create Warehouse First</div>
+            <div id="createWareHelp" class="form-text">Create Warehouse First to add inventory</div>
         </div>
 
         <div class="col-12">
             <button type="submit" class="btn btn-primary mt-3">Submit</button>
         </div>
-        <ul>
-            <li th:each="err : ${#fields.errors('inventory.*')}" th:text="${err}" />
-        </ul>
+
     </form>
 
 </div>
