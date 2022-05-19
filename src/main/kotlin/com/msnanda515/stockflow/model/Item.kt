@@ -60,6 +60,7 @@ class ItemVM(
     val wareNo: Long = 1,
     @field:Min(0)
     var units: Int = 0,
+    var pallets: MutableList<Pallet> = mutableListOf()
 ) {
     companion object {
         fun createItem(): ItemVM {
@@ -70,6 +71,25 @@ class ItemVM(
                 department = Department.MISC,
             )
         }
+
+        /**
+         * Prepares the view model from the Item object
+         */
+        fun prepareVM(item: Item): ItemVM {
+            var itemVm = ItemVM(
+                itemNo = item.itemNo,
+                name = item.name,
+                description = item.description,
+                department = item.department,
+                pallets = item.pallets
+            )
+            itemVm.units = item.pallets.fold(0) {sum, p -> sum + p.units}
+            return itemVm
+        }
+    }
+
+    fun getDisplayStr(): String {
+        return "Item No: $itemNo, Name: $name, Desc: $description, Dep: $department, Units: $units"
     }
 }
 

@@ -16,7 +16,7 @@ class ItemService(
     /**
      * Gets all active items
      */
-    fun getAllItems(): List<Item> {
+    fun getAllActiveItems(): List<Item> {
         return itemRepository.findAllByStatus(ItemStatus.ACTIVE)
     }
 

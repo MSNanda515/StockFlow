@@ -28,6 +28,12 @@ data class Pallet(
         return palletLoc.compareTo(other.palletLoc)
     }
 
+    fun getDisplayStr(): String {
+        val pId = id.toString().takeLast(6)
+        return "PalletId: $pId, Warehouse: ${palletLoc.wareNo}, Aisle: ${palletLoc.aisle}, " +
+                "Section: ${palletLoc.section}, Level: ${palletLoc.level}, Units: ${units}"
+    }
+
     companion object {
         /**
          * Creates the pallets for an item

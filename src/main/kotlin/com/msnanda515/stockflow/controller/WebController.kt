@@ -2,19 +2,17 @@ package com.msnanda515.stockflow.controller
 
 import com.msnanda515.stockflow.exception.AlreadyExistsException
 import com.msnanda515.stockflow.exception.OutOfCapacityException
+import com.msnanda515.stockflow.model.Item
 import com.msnanda515.stockflow.model.ItemVM
 import com.msnanda515.stockflow.model.WarehouseVM
-import com.msnanda515.stockflow.repository.ItemRepository
 import com.msnanda515.stockflow.service.ItemService
 import com.msnanda515.stockflow.service.WarehouseService
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
-import org.springframework.validation.ObjectError
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import javax.validation.Valid
 
@@ -33,12 +31,13 @@ class WebController(
         // get objects required for ui
         val wares = warehouseService.getAllWarehouses()
         val selectedWareName = "All Warehouses"
-        val items = itemService.getAllItems()
+        val items = itemService.getAllActiveItems()
+        val itemVms = items.map { ItemVM.prepareVM(it) }
 
         // pass required objects to model
         model.addAttribute("wares", wares)
         model.addAttribute("selectedWareName", selectedWareName)
-        model.addAttribute("items", items)
+        model.addAttribute("items", itemVms)
         return "index"
     }
 

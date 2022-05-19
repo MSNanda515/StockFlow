@@ -17,14 +17,17 @@
 
     <H2 class="mt-5">Items: <span th:text="${selectedWareName}">All Items</span></H2>
 
-    <a class="text-decoration-none text-reset mt-1" data-bs-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">
+    <a class="text-decoration-none text-reset mt-1" data-bs-toggle="collapse"
+       th:each="item : ${items}"
+       th:href="@{|#itemblockid-${itemStat.count}|}" role="button" aria-expanded="false" aria-controls="multiCollapseExample1"
+       >
         <div class="card">
             <div class="card-body">
-                <div>
-                    Item No: 123, Name: Apple, Desc: Fruit, Units: 200
+                <div th:text="${item.getDisplayStr()}">
                 </div>
-                <div class="collapse multi-collapse mt-1 ms-4" id="multiCollapseExample1">
-                    PalletId: 222, Warehouse: 1, Aisle: 12, section: 1, level: 3
+                <div class="collapse multi-collapse mt-1 ms-4" th:id="@{|itemblockid-${itemStat.count}|}">
+                    <div th:each="pallet : ${item.pallets}" th:text="${pallet.getDisplayStr()}">
+                    </div>
                 </div>
             </div>
         </div>
