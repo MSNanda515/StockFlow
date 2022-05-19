@@ -19,23 +19,51 @@
         <button type="button" class="btn btn-primary mx-2">Send Shipment</button>
     </div>
 
+    <!--Items-->
     <H2 class="mt-5">Items: <span th:text="${selectedWareName}">All Items</span></H2>
 
-    <a class="text-decoration-none text-reset mt-1" data-bs-toggle="collapse"
-       th:each="item : ${items}"
-       th:href="@{|#itemblockid-${itemStat.count}|}" role="button" aria-expanded="false" aria-controls="multiCollapseExample1"
-       >
-        <div class="card">
-            <div class="card-body">
-                <div th:text="${item.getDisplayStr()}">
-                </div>
-                <div class="collapse multi-collapse mt-1 ms-4" th:id="@{|itemblockid-${itemStat.count}|}">
-                    <div th:each="pallet : ${item.pallets}" th:text="${pallet.getDisplayStr()}">
-                    </div>
+    <div class="accordion" id="accordionItems">
+
+        <!--Accordion items-->
+        <div class="accordion-item" th:each="item : ${items}">
+            <!--Item title-->
+            <h2 class="accordion-header" th:id="@{|itemHeadingId-${itemStat.count}|}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" th:attr="data-bs-target=@{|#itemBlockId-${itemStat.count}|},aria-controls=@{|itemBlockId-${itemStat.count}|}" aria-expanded="false">
+                    <span th:text="${item.getDisplayStr()}"></span>
+                </button>
+            </h2>
+            <!--Pallet info, item add-ons-->
+            <div th:id="@{|itemBlockId-${itemStat.count}|}" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionItems">
+                <div class="accordion-body ms-4">
+                    <!--Buttons for item edit-->
+                    <ul class="list-inline mb-3">
+                        <li class="list-inline-item">
+                            <a href="/">
+                                <i class="fa-solid fa-file-circle-plus text-success h4"></i>
+                            </a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a href="/">
+                                <i class="fa fa-edit text-info h4"></i></button>
+                            </a>
+                        </li>
+                        <li class="list-inline-item">
+                            <a href="#">
+                                <i class="fa-solid fa-trash text-danger h4"></i>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!--Pallet information-->
+                    <div th:each="pallet : ${item.pallets}" th:text="${pallet.getDisplayStr()}"></div>
                 </div>
             </div>
         </div>
-    </a>
+
+    </div>
+
+
+
 </div>
 
 <!--Footer-->
