@@ -23,17 +23,19 @@ class ItemService(
     fun createItem(itemVm: ItemVM) {
         var itemExists = itemRepository.findAllByItemNo(itemVm.itemNo).isNotEmpty()
         if (itemExists) {
-            throw AlreadyExistsException("Item with ${itemVm.itemNo} already exists")
+            throw AlreadyExistsException("Item with Item No ${itemVm.itemNo} already exists")
         }
 
         var item = Item.createItem(itemVm)
         // get the pallets required for the item
-        var palletsRequired = item.palletsRequired(itemVm.units)
-        val palletLocs = warehouseService.getAvailablePalletPos(palletsRequired, itemVm.wareNo)
-        val pallets = Pallet.createPalletsForItem(item.itemNo, itemVm.units, palletLocs, palletsRequired,
-            item.department.palleteCap)
-        item.pallets.addAll(pallets)
-        warehouseService.addPalletsToWarehouse(itemVm.wareNo, pallets)
+        if (itemVm.units > 0) {
+            var palletsRequired = item.palletsRequired(itemVm.units)
+            val palletLocs = warehouseService.getAvailablePalletPos(palletsRequired, itemVm.wareNo)
+            val pallets = Pallet.createPalletsForItem(item.itemNo, itemVm.units, palletLocs, palletsRequired,
+                item.department.palleteCap)
+            item.pallets.addAll(pallets)
+            warehouseService.addPalletsToWarehouse(itemVm.wareNo, pallets)
+        }
         itemRepository.save(item)
     }
 

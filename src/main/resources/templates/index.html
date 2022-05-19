@@ -9,8 +9,12 @@
     <h1>Dashboard</h1>
 
     <div class="mt-4">
-        <a href="/items/create" type="button" class="btn btn-primary mx-2">Add Item</a>
-        <a href="/warehouse/create" type="button" class="btn btn-primary mx-2">Add Warehouse</a>
+        <a href="/warehouse/create" type="button" class="btn btn-primary mx-2"
+           data-toggle="tooltip" data-placement="top" title="Create Warehouse">Add Warehouse</a>
+        <a href="/items/create" type="button" class="btn btn-primary mx-2"
+           data-toggle="tooltip" data-placement="top" title="Create Item">Add Item</a>
+        <a href="/items/inventory/create" type="button" class="btn btn-primary mx-2"
+           data-toggle="tooltip" data-placement="top" title="Create Inventory">Add Inventory</a>
         <button type="button" class="btn btn-primary mx-2">Receive Shipment</button>
         <button type="button" class="btn btn-primary mx-2">Send Shipment</button>
     </div>
@@ -32,22 +36,6 @@
             </div>
         </div>
     </a>
-
-
-    <a class="text-decoration-none text-reset" data-bs-toggle="collapse" href="#multiCollapseExample2" role="button" aria-expanded="false" aria-controls="multiCollapseExample2">
-        <div class="card">
-            <div class="card-body">
-                <div>
-                    Item No: 123, Name: Apple, Desc: Fruit, Units: 200
-                </div>
-                <div class="collapse multi-collapse mt-1 ms-4" id="multiCollapseExample2">
-                    PalletId: 222, Warehouse: 1, Aisle: 12, section: 1, level: 3
-                </div>
-            </div>
-        </div>
-    </a>
-
-
 </div>
 
 <!--Footer-->

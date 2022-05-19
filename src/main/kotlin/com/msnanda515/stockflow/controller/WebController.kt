@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import javax.validation.Valid
 
-
+/**
+ * Controller for the web application
+ */
 @Controller
 class WebController(
     private val itemService: ItemService,
@@ -90,12 +92,12 @@ class WebController(
         var wares = warehouseService.getAllWarehouses()
         val wareExist = wares.isNotEmpty()
         var wareSelected: Int = 0
+
         model.addAttribute("item", item)
         model.addAttribute("wareExist", wareExist)
         Util.addModelAttributesNavbar(
             model, if (wareExist) wares[wareSelected].name else "Warehouse", wares
         )
-
         return "createItem"
     }
 
@@ -129,7 +131,30 @@ class WebController(
                 FieldError("item", "units",
                     exp.message ?: "Not enough Capacity in warehouse")
             )
-            return "createWarehouse"
+            setCustFailModel()
+            return "createItem"
+        } catch (exp: AlreadyExistsException) {
+            bindingResult.addError(FieldError("item", "itemNo",
+                exp.message ?: "Item No should be unique")
+            )
+            setCustFailModel()
+            return "createItem"
         }
+    }
+
+    @GetMapping("/items/inventory/create")
+    fun getCreateInventory(model: Model): String {
+        var items = itemService.getAllActiveItems()
+        var wares = warehouseService.getAllWarehouses()
+        var selectedItemNo = if (items.isNotEmpty()) items[0].itemNo else 0
+
+        val wareExist = wares.isNotEmpty()
+        var wareSelected: Int = 0
+
+        model.addAttribute("wareExist", wareExist)
+        Util.addModelAttributesNavbar(
+            model, if (wareExist) wares[wareSelected].name else "Warehouse", wares
+        )
+        return "createItem"
     }
 }
