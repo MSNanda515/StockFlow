@@ -20,6 +20,23 @@ class ItemService(
     }
 
     /**
+     * Active items, assumes that all pallets in the warehouse are for active items
+     */
+    fun getActiveItemsInWarehouse(wareNo: Long): List<Item> {
+        val items = getAllActiveItems()
+        val resItems: MutableList<Item> = mutableListOf()
+        // filter those items which have units in the warehouse
+        for (item in items) {
+            var palletsInWare = item.pallets.filter { it.palletLoc.wareNo == wareNo }
+            if (palletsInWare.isNotEmpty()) {
+                item.pallets = palletsInWare as MutableList<Pallet>
+                resItems.add(item)
+            }
+        }
+        return resItems
+    }
+
+    /**
      * Creates and persists an item using the details from itemVM
      */
     fun createItem(itemVm: ItemVM) {

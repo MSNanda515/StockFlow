@@ -3,7 +3,6 @@ package com.msnanda515.stockflow.controller
 import com.msnanda515.stockflow.exception.AlreadyExistsException
 import com.msnanda515.stockflow.exception.DoesNotExistsException
 import com.msnanda515.stockflow.exception.OutOfCapacityException
-import com.msnanda515.stockflow.model.Item
 import com.msnanda515.stockflow.model.ItemInventoryVM
 import com.msnanda515.stockflow.model.ItemVM
 import com.msnanda515.stockflow.model.WarehouseVM
@@ -15,6 +14,7 @@ import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import javax.validation.Valid
 
@@ -200,5 +200,23 @@ class WebController(
             setCustFailModel()
             return "createInventory"
         }
+    }
+
+    @GetMapping("/warehouse/{wareNo}")
+    fun getWarehouseItems(@PathVariable wareNo: Long,  model: Model): String {
+        val items = itemService.getActiveItemsInWarehouse(wareNo)
+        // get objects required for ui
+        val wares = warehouseService.getAllWarehouses()
+        val itemVms = items.map { ItemVM.prepareVM(it) }
+        val selectedWare = wares.find { it.wareNo==wareNo }
+
+        // pass required objects to model
+        Util.addModelAttributesDash(
+            model = model, itemVms = itemVms, wares = wares,
+            selectedWareName = selectedWare?.name ?: "Warehouse" ,
+            selectedWareNo = selectedWare?.wareNo ?: 0, isWareSelected = true,
+        )
+
+        return "index"
     }
 }

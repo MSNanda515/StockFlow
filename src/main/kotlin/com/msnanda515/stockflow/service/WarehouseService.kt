@@ -30,9 +30,7 @@ class WarehouseService(val warehouseRepository: WarehouseRepository) {
         return warehouseRepository.findAll()
     }
 
-    fun getWarehouse(wareNo: Long) {
 
-    }
 
     /**
      * Finds the next available warehouse No

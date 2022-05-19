@@ -20,7 +20,14 @@
     </div>
 
     <!--Items-->
-    <H2 class="mt-5">Items: <span th:text="${selectedWareName}">All Items</span></H2>
+    <H2 class="mt-5">
+        Items: <span th:text="${selectedWareName}">All Items</span>
+        <span th:if="${isWareSelected}">
+            <a  class="ms-3" th:href="@{/warehouse/edit/{id}(id=${selectedWareNo})}">
+                <i class="fa fa-edit text-info h4"></i></button>
+            </a>
+        </span>
+    </H2>
 
     <div class="accordion" id="accordionItems">
 

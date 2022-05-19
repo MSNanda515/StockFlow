@@ -25,7 +25,7 @@ data class Item(
     val createdDate: LocalDateTime = LocalDateTime.now(),
     val modifiedDate: LocalDateTime = LocalDateTime.now(),
 
-    val pallets: MutableList<Pallet> = mutableListOf(),
+    var pallets: MutableList<Pallet> = mutableListOf(),
     val shipments: MutableList<Shipment> = mutableListOf(),
 ) {
     /**
