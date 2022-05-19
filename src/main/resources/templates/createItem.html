@@ -14,7 +14,7 @@
             <label for="itemNo" class="form-label">Item No</label>
             <input type="text" class="form-control" id="itemNo" aria-describedby="itemNoHelp"
                    th:field="*{itemNo}">
-            <div id="itemNoHelp" class="form-text">Should be unique</div>
+            <div id="itemNoHelp" class="form-text">Should be unique; Auto assigned to be convenient</div>
             <span th:if="${#fields.hasErrors('itemNo')}" th:errors="*{itemNo}" class="text-danger">error</span>
         </div>
 
@@ -51,11 +51,11 @@
                 <select id="warehouseSelect" class="form-select" aria-label="warehouseHelp"
                         th:field="*{wareNo}"  name="wareNo">
                     <option th:each="w : ${wares}" th:value="${w.wareNo}">
-                        <span th:text="${w.wareNo}"></span>
+                        <span th:text="${w.toString()}"></span>
                     </option>
                 </select>
                 <div id="warehouseHelp" class="form-text">Pallets automatically assigned;<br/>
-                    Can add item to other warehouses from dashboard</div>
+                    Note: You can add item to other warehouses from dashboard</div>
             </div>
 
             <div class="mb-3 col-md-6">

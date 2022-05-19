@@ -2,8 +2,6 @@ package com.msnanda515.stockflow.model
 
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.index.Indexed
-import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDateTime
 import javax.validation.constraints.Min
@@ -16,6 +14,12 @@ class WarehouseVM(
     var name: String,
     @field:NotBlank
     var location: String,
+    @field:Min(100)
+    var aisle: Int = 200,
+    @field:Min(5)
+    var section: Int = 10,
+    @field:Min(3)
+    var level: Int = 4,
 ) {
     companion object {
         /**
@@ -29,6 +33,12 @@ class WarehouseVM(
             )
         }
     }
+
+    fun setDefaultValues(wareNo: Long) {
+        this.wareNo = wareNo
+        this.name = "Ware $wareNo"
+        this.location = "Loc $wareNo"
+    }
 }
 @Document
 data class Warehouse(
@@ -36,6 +46,7 @@ data class Warehouse(
     var name: String,
     var location: String,
     var pallets: MutableList<Pallet> = mutableListOf(),
+    var capacity: WarehouseCapacity = WarehouseCapacity(),
     @Id
     val id: ObjectId = ObjectId.get(),
     val createdDate: LocalDateTime = LocalDateTime.now(),
@@ -50,10 +61,28 @@ data class Warehouse(
                 wareNo = wareVm.wareNo,
                 name = wareVm.name,
                 location = wareVm.location,
+                capacity = WarehouseCapacity(wareVm.aisle, wareVm.section, wareVm.level)
             )
         }
     }
 
+    override fun toString(): String {
+        return "$wareNo ($name)"
+    }
+}
+
+/**
+ * Defines the max capacity of a warehouse
+ */
+data class WarehouseCapacity(
+    var aisle: Int = 300,
+    var section: Int = 10,
+    var level: Int = 3,
+) {
+    /**
+     * Gets the pallets allowed in the warehouse
+     */
+    fun getCapacity(): Long = 1L * aisle * section * level
 }
 
 

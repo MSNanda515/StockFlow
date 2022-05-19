@@ -1,6 +1,7 @@
 package com.msnanda515.stockflow.controller
 
 import com.msnanda515.stockflow.exception.AlreadyExistsException
+import com.msnanda515.stockflow.exception.OutOfCapacityException
 import com.msnanda515.stockflow.model.ItemVM
 import com.msnanda515.stockflow.model.WarehouseVM
 import com.msnanda515.stockflow.repository.ItemRepository
@@ -27,7 +28,7 @@ class WebController(
     /**
      * Home page
      */
-    @GetMapping("/")
+    @GetMapping(value = ["/", ""])
     fun index(model: Model): String {
         // get objects required for ui
         val wares = warehouseService.getAllWarehouses()
@@ -48,7 +49,7 @@ class WebController(
     fun getCreateWarehouse(model: Model): String {
         var wareVm = WarehouseVM.createVM()
         val wares = warehouseService.getAllWarehouses()
-        wareVm.wareNo = warehouseService.getNextWarehouseNo()
+        wareVm.setDefaultValues(warehouseService.getNextWarehouseNo())
         model.addAttribute("ware", wareVm)
         Util.addModelAttributesNavbar(
             model, "Warehouse", wares
@@ -67,7 +68,7 @@ class WebController(
         } else {
             return try {
                 warehouseService.createWarehouse(wareVm)
-                "index"
+                "redirect:/"
             } catch (exp: AlreadyExistsException) {
                 bindingResult.addError(
                     FieldError("ware", "wareNo",
@@ -86,6 +87,7 @@ class WebController(
     @GetMapping("/items/create")
     fun getCreateItem(model: Model): String {
         var item = ItemVM.createItem()
+        item.itemNo = itemService.getNextItemNo()
         var wares = warehouseService.getAllWarehouses()
         val wareExist = wares.isNotEmpty()
         var wareSelected: Int = 0
@@ -104,19 +106,31 @@ class WebController(
         bindingResult: BindingResult,
         model: Model
     ): String {
-        if (bindingResult.hasErrors()) {
-            // Prepare the context for model and show the errors UI
+
+        fun setCustFailModel() {
             var wares = warehouseService.getAllWarehouses()
             val wareExist = wares.isNotEmpty()
             model.addAttribute("item", itemVM)
             model.addAttribute("wareExist", wareExist)
             Util.addModelAttributesNavbar(
-                model, "ware", wares
+                model, "Warehouse", wares
             )
-            return "createItem"
         }
 
-        itemService.createItem(itemVM)
-        return "index"
+        if (bindingResult.hasErrors()) {
+            // Prepare the context for model and show the errors UI
+            setCustFailModel()
+            return "createItem"
+        }
+        try {
+            itemService.createItem(itemVM)
+            return "redirect:/"
+        } catch (exp: OutOfCapacityException) {
+            bindingResult.addError(
+                FieldError("item", "units",
+                    exp.message ?: "Not enough Capacity in warehouse")
+            )
+            return "createWarehouse"
+        }
     }
 }

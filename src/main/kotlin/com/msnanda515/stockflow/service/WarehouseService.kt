@@ -2,6 +2,7 @@ package com.msnanda515.stockflow.service
 
 import com.msnanda515.stockflow.exception.AlreadyExistsException
 import com.msnanda515.stockflow.exception.DoesNotExistsException
+import com.msnanda515.stockflow.exception.OutOfCapacityException
 import com.msnanda515.stockflow.model.*
 import com.msnanda515.stockflow.repository.WarehouseRepository
 import org.springframework.stereotype.Service
@@ -52,16 +53,13 @@ class WarehouseService(val warehouseRepository: WarehouseRepository) {
         val ware = wares[0]
         val warePallets = ware.pallets.map { it.palletLoc.toString() }.toSet()
         val palletLocs = mutableListOf<PalletLoc>()
-        var a = 0
-        var s = 0
-        var l = 0
         var assPallets = 0
 
         // find an available slot in the warehouse
-        while (a++ <= 200) {
-            while (s++ <= 10) {
-                while (l++ <= 3) {
-                    if ("(${ware.wareNo},${a},${s},${l})" !in warePallets) {
+        for (a in 1..ware.capacity.aisle) {
+            for (s in 1..ware.capacity.section) {
+                for (l in 1..ware.capacity.level) {
+                    if ( !warePallets.contains("(${ware.wareNo},${a},${s},${l})") ) {
                         palletLocs.add(PalletLoc(ware.wareNo, a, s, l))
                         assPallets++
                         if (assPallets == noPallets) {
@@ -71,6 +69,9 @@ class WarehouseService(val warehouseRepository: WarehouseRepository) {
                 }
             }
         }
+        // if more pallets required, out of capacity
+        throw OutOfCapacityException("Warehouse $wareNo out of Capacity, has ${warePallets.size} pallets, " +
+                "Capacity ${ware.capacity.getCapacity()}: ${ware.capacity.toString()} ")
         return palletLocs
     }
 

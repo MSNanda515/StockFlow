@@ -50,16 +50,16 @@ data class Item(
 
 class ItemVM(
     @field:Min(1)
-    val itemNo: Long,
+    var itemNo: Long,
     @field:NotBlank
-    val name: String,
+    var name: String,
     @field:NotBlank
-    val description: String,
+    var description: String,
     @field:NotNull
-    val department: Department,
+    var department: Department,
     val wareNo: Long = 1,
     @field:Min(0)
-    val units: Int = 0,
+    var units: Int = 0,
 ) {
     companion object {
         fun createItem(): ItemVM {
