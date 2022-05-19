@@ -44,6 +44,7 @@ class WarehouseService(val warehouseRepository: WarehouseRepository) {
 
     /**
      * Gets the available pallet locations in the warehouse
+     * @throws OutOfCapacityException if not enough capacity in the warehouse
      */
     fun getAvailablePalletPos(noPallets: Int, wareNo: Long): List<PalletLoc> {
         val wares = warehouseRepository.findByWareNo(wareNo)
@@ -75,13 +76,5 @@ class WarehouseService(val warehouseRepository: WarehouseRepository) {
         return palletLocs
     }
 
-    fun addPalletsToWarehouse(wareNo: Long, pallets: List<Pallet>) {
-        val wares = warehouseRepository.findByWareNo(wareNo)
-        if (wares.isEmpty()) {
-            throw DoesNotExistsException("Warehouse with $wareNo does not exist")
-        }
-        val ware = wares[0]
-        ware.pallets.addAll(pallets)
-        warehouseRepository.save(ware)
-    }
+
 }

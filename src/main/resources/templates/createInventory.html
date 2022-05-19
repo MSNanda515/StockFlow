@@ -1,0 +1,70 @@
+<!--Headers-->
+<header th:insert="fragments/header.html"> </header>
+<!--Navbars-->
+<span th:insert="fragments/navbar.html"> </span>
+
+<!--Content-->
+<div class="container-fluid mx-auto px-5 py-4">
+    <h1>Create Inventory for Item</h1>
+
+    <div th:if="${waresExist and itemsExist}" class="row g-3">
+        <form th:object="${inventory}" th:action="@{/items/inventory/create}" method="post"
+              class="row g-3">
+
+            <div class="mb-3 col-md-6">
+                <label for="itemSelect" class="form-label">Item</label>
+                <select id="itemSelect" class="form-select" aria-label="itemSelectHelp"
+                        th:field="*{itemNo}" name="itemNo">
+                    <option th:each="it : ${items}" th:value="${it.itemNo}">
+                        <span th:text="${it.getDisplayStr()}"></span>
+                    </option>
+                </select>
+                <div id="=itemSelectHelp" class="form-text">Pallets automatically assigned;<br/>
+                    To create a new item, use option on dashboard</div>
+            </div>
+
+            <div class="mb-3 col-md-6">
+                <label for="wareSelect" class="form-label">Warehouse</label>
+                <select id="wareSelect" class="form-select" aria-label="wareSelectHelp"
+                        th:field="*{wareNo}" name="itemNo">
+                    <option th:each="it : ${wares}" th:value="${it.wareNo}">
+                        <span th:text="${it.toString()}"></span>
+                    </option>
+                </select>
+                <div id="=wareSelectHelp" class="form-text"></div>
+            </div>
+
+            <div class="mb-3 col-md-4">
+                <label for="itemUnits" class="form-label">Units</label>
+                <input type="number" class="form-control" id="itemUnits" th:field="*{units}" name="units">
+                <span th:if="${#fields.hasErrors('units')}" th:errors="*{units}" class="text-danger">error</span>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary mt-3">Submit</button>
+            </div>
+
+        </form>
+    </div>
+
+
+    <!--If warehouse doesn't exist-->
+    <div th:unless="${waresExist}" class="m-3">
+        <a href="/warehouse/create" type="button" class="btn btn-primary mx-2" aria-label="createWareHelp">
+            Add Warehouse
+        </a>
+        <div id="createWareHelp" class="form-text">Create Warehouse First to add inventory</div>
+    </div>
+
+    <!--If item does not exist-->
+    <div th:unless="${itemsExist}" class="m-3">
+        <a href="/items/create" type="button" class="btn btn-primary mx-2" aria-label="createItemHelp">
+            Add Item
+        </a>
+        <div id="createItemHelp" class="form-text">Create Item First to add inventory</div>
+    </div>
+
+</div>
+
+<!--Footer-->
+<span th:insert="fragments/footer.html"> </span>

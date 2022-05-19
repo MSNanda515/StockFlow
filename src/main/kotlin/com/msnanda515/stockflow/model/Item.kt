@@ -34,6 +34,9 @@ data class Item(
     fun palletsRequired(units: Int): Int =
         ceil(1.0 * units / department.palleteCap).toInt()
 
+    fun getDisplayStr(): String {
+        return "$itemNo (Name: $name, Department: ${department.disp}, Pallet Cap: ${department.palleteCap})"
+    }
     companion object {
         /**
          * Create an item object from the item view model
@@ -92,6 +95,18 @@ class ItemVM(
         return "Item No: $itemNo, Name: $name, Desc: $description, Dep: $department, Units: $units"
     }
 }
+
+/**
+ * Used to create inventory of an item
+ */
+data class ItemInventoryVM(
+    @field:Min(1)
+    var itemNo: Long,
+    @field:Min(1)
+    var wareNo: Long,
+    @field:Min(1)
+    var units: Int,
+)
 
 /**
  * Represents the status code for item

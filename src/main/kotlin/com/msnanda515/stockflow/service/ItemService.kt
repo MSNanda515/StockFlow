@@ -1,17 +1,16 @@
 package com.msnanda515.stockflow.service
 
-import com.msnanda515.stockflow.exception.AlreadyExistsException
-import com.msnanda515.stockflow.model.Item
-import com.msnanda515.stockflow.model.ItemStatus
-import com.msnanda515.stockflow.model.ItemVM
-import com.msnanda515.stockflow.model.Pallet
+import com.msnanda515.stockflow.exception.*
+import com.msnanda515.stockflow.model.*
 import com.msnanda515.stockflow.repository.ItemRepository
+import com.msnanda515.stockflow.repository.WarehouseRepository
 import org.springframework.stereotype.Service
 
 @Service
 class ItemService(
     val itemRepository: ItemRepository,
-    var warehouseService: WarehouseService,
+    val warehouseRepository: WarehouseRepository,
+    val warehouseService: WarehouseService,
 ) {
     /**
      * Gets all active items
@@ -20,6 +19,9 @@ class ItemService(
         return itemRepository.findAllByStatus(ItemStatus.ACTIVE)
     }
 
+    /**
+     * Creates and persists an item using the details from itemVM
+     */
     fun createItem(itemVm: ItemVM) {
         var itemExists = itemRepository.findAllByItemNo(itemVm.itemNo).isNotEmpty()
         if (itemExists) {
@@ -29,14 +31,58 @@ class ItemService(
         var item = Item.createItem(itemVm)
         // get the pallets required for the item
         if (itemVm.units > 0) {
-            var palletsRequired = item.palletsRequired(itemVm.units)
-            val palletLocs = warehouseService.getAvailablePalletPos(palletsRequired, itemVm.wareNo)
-            val pallets = Pallet.createPalletsForItem(item.itemNo, itemVm.units, palletLocs, palletsRequired,
-                item.department.palleteCap)
-            item.pallets.addAll(pallets)
-            warehouseService.addPalletsToWarehouse(itemVm.wareNo, pallets)
+            addInventoryToItem(item, itemVm.units, itemVm.wareNo)
         }
         itemRepository.save(item)
+    }
+
+    /**
+     * Creates and persists inventory for an existing item
+     * @throws DoesNotExistsException if either the warehouse or the item does not exist with given Ids
+     * @throws OutOfCapacityException if not enough capacity in the warehouse
+     */
+    fun createInventory(inventoryVM: ItemInventoryVM) {
+        val items = itemRepository.findAllByItemNo(inventoryVM.itemNo)
+        // check if item exists
+        val itemExits = items.isNotEmpty()
+        if (!itemExits) {
+            throw DoesNotExistsException("Item with ${inventoryVM.itemNo} does not exist")
+        }
+        val item = items[0]
+        addInventoryToItem(item, inventoryVM.units, inventoryVM.wareNo)
+        itemRepository.save(item)
+    }
+
+    /**
+     * Adds inventory units to an item
+     * Also records the pallet information in the warehouse document
+     * Note: Does not persist the item
+     * @throws DoesNotExistsException if warehouse with wareNo does not exist
+     * @throws OutOfCapacityException if not enough capacity in the warehouse
+     */
+    fun addInventoryToItem(item: Item, units: Int, wareNo: Long) {
+        // find the pallet info for storing the inventory in the warehouse
+        val palletsRequired = item.palletsRequired(units)
+        val palletLocs = warehouseService.getAvailablePalletPos(palletsRequired, wareNo)
+        val pallets = Pallet.createPalletsForItem(item.itemNo, units, palletLocs, palletsRequired,
+            item.department.palleteCap)
+        // store the pallet ifo
+        item.pallets.addAll(pallets)
+        addPalletsToWarehouse(wareNo, pallets)
+    }
+
+    /**
+     * Adds pallets to the warehouse
+     * @throws DoesNotExistsException if warehouse with wareNo does not exist
+     */
+    fun addPalletsToWarehouse(wareNo: Long, pallets: List<Pallet>) {
+        val wares = warehouseRepository.findByWareNo(wareNo)
+        if (wares.isEmpty()) {
+            throw DoesNotExistsException("Warehouse with $wareNo does not exist")
+        }
+        val ware = wares[0]
+        ware.pallets.addAll(pallets)
+        warehouseRepository.save(ware)
     }
 
     /**

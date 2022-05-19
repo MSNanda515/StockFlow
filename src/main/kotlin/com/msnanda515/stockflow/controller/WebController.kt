@@ -1,8 +1,10 @@
 package com.msnanda515.stockflow.controller
 
 import com.msnanda515.stockflow.exception.AlreadyExistsException
+import com.msnanda515.stockflow.exception.DoesNotExistsException
 import com.msnanda515.stockflow.exception.OutOfCapacityException
 import com.msnanda515.stockflow.model.Item
+import com.msnanda515.stockflow.model.ItemInventoryVM
 import com.msnanda515.stockflow.model.ItemVM
 import com.msnanda515.stockflow.model.WarehouseVM
 import com.msnanda515.stockflow.service.ItemService
@@ -102,11 +104,8 @@ class WebController(
     }
 
     @PostMapping("/items/create")
-    fun postCreateItem(
-        @Valid @ModelAttribute("item") itemVM: ItemVM,
-        bindingResult: BindingResult,
-        model: Model
-    ): String {
+    fun postCreateItem(@Valid @ModelAttribute("item") itemVM: ItemVM, bindingResult: BindingResult,
+                       model: Model): String {
 
         fun setCustFailModel() {
             var wares = warehouseService.getAllWarehouses()
@@ -146,15 +145,60 @@ class WebController(
     fun getCreateInventory(model: Model): String {
         var items = itemService.getAllActiveItems()
         var wares = warehouseService.getAllWarehouses()
-        var selectedItemNo = if (items.isNotEmpty()) items[0].itemNo else 0
 
-        val wareExist = wares.isNotEmpty()
-        var wareSelected: Int = 0
+        val selectedItemNo = if (items.isNotEmpty()) items[0].itemNo else 0
+        val selectedWare = 0
+        // Create default inventoryVM
+        var inventory = ItemInventoryVM(selectedItemNo, if (wares.isEmpty()) 0 else wares[selectedWare].wareNo,1)
 
-        model.addAttribute("wareExist", wareExist)
+        model.addAttribute("itemsExist", items.isNotEmpty())
+        model.addAttribute("waresExist", wares.isNotEmpty())
+        model.addAttribute("items", items)
+        model.addAttribute("inventory", inventory)
         Util.addModelAttributesNavbar(
-            model, if (wareExist) wares[wareSelected].name else "Warehouse", wares
+            model, if (wares.isNotEmpty()) wares[selectedWare].name else "Warehouse", wares
         )
-        return "createItem"
+        return "createInventory"
+    }
+
+    @PostMapping("/items/inventory/create")
+    fun postCreateInventory(@Valid @ModelAttribute("inventory") inventoryVM: ItemInventoryVM,
+                            bindingResult: BindingResult, model: Model): String {
+        fun setCustFailModel() {
+            var wares = warehouseService.getAllWarehouses()
+            var items = itemService.getAllActiveItems()
+            val waresExist = wares.isNotEmpty()
+            val itemsExist = items.isNotEmpty()
+            model.addAttribute("inventory", inventoryVM)
+            model.addAttribute("waresExist", waresExist)
+            model.addAttribute("itemsExist", itemsExist)
+            model.addAttribute("items", items)
+            Util.addModelAttributesNavbar(
+                model, "Warehouse", wares
+            )
+        }
+
+        if (bindingResult.hasErrors()) {
+            // Prepare the context for model and show the errors UI
+            setCustFailModel()
+            return "createInventory"
+        }
+        try {
+            itemService.createInventory(inventoryVM)
+            return "redirect:/"
+        } catch (exp: OutOfCapacityException) {
+            bindingResult.addError(
+                FieldError("inventory", "units",
+                    exp.message ?: "Not enough Capacity in warehouse")
+            )
+            setCustFailModel()
+            return "createInventory"
+        } catch (exp: DoesNotExistsException) {
+            bindingResult.addError(FieldError("inventory", "itemNo",
+                exp.message ?: "Item No/ Warehouse No does not exist")
+            )
+            setCustFailModel()
+            return "createInventory"
+        }
     }
 }
