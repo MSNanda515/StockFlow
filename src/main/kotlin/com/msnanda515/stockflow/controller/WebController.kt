@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestParam
 import javax.validation.Valid
 
 /**
@@ -87,6 +88,9 @@ class WebController(
 //
 //    }
 
+    /**
+     * Create an item
+     */
     @GetMapping("/items/create")
     fun getCreateItem(model: Model): String {
         var item = ItemVM.createItem()
@@ -103,6 +107,9 @@ class WebController(
         return "createItem"
     }
 
+    /**
+     * Creates an item if all parameters valid
+     */
     @PostMapping("/items/create")
     fun postCreateItem(@Valid @ModelAttribute("item") itemVM: ItemVM, bindingResult: BindingResult,
                        model: Model): String {
@@ -141,26 +148,34 @@ class WebController(
         }
     }
 
+    /**
+     * Creates inventory for existing items
+     */
     @GetMapping("/items/inventory/create")
-    fun getCreateInventory(model: Model): String {
+    fun getCreateInventory(@RequestParam(required = false, name = "itemNo") itemNoReq: Long? = 0,
+                           @RequestParam(required = false, name = "wareNo") wareNoReq: Long? = 0,
+                           model: Model): String {
         var items = itemService.getAllActiveItems()
         var wares = warehouseService.getAllWarehouses()
-
-        val selectedItemNo = if (items.isNotEmpty()) items[0].itemNo else 0
-        val selectedWare = 0
+        val itemNo = itemNoReq ?: if(items.isNotEmpty()) items[0].itemNo else 0
+        val wareNo = wareNoReq ?: if(wares.isNotEmpty()) wares[0].wareNo else 0
+        val selectedWare = wares.find { it.wareNo == wareNo }
         // Create default inventoryVM
-        var inventory = ItemInventoryVM(selectedItemNo, if (wares.isEmpty()) 0 else wares[selectedWare].wareNo,1)
+        var inventory = ItemInventoryVM(itemNo, wareNo, 1)
 
         model.addAttribute("itemsExist", items.isNotEmpty())
         model.addAttribute("waresExist", wares.isNotEmpty())
         model.addAttribute("items", items)
         model.addAttribute("inventory", inventory)
         Util.addModelAttributesNavbar(
-            model, if (wares.isNotEmpty()) wares[selectedWare].name else "Warehouse", wares
+            model, selectedWare?.name ?: "All Warehouses", wares
         )
         return "createInventory"
     }
 
+    /**
+     * Adds inventory if all params valid
+     */
     @PostMapping("/items/inventory/create")
     fun postCreateInventory(@Valid @ModelAttribute("inventory") inventoryVM: ItemInventoryVM,
                             bindingResult: BindingResult, model: Model): String {
@@ -185,7 +200,7 @@ class WebController(
         }
         try {
             itemService.createInventory(inventoryVM)
-            return "redirect:/"
+            return "redirect:/warehouse/${inventoryVM.wareNo}"
         } catch (exp: OutOfCapacityException) {
             bindingResult.addError(
                 FieldError("inventory", "units",
@@ -202,6 +217,9 @@ class WebController(
         }
     }
 
+    /**
+     * Gets all items in the warehouse
+     */
     @GetMapping("/warehouse/{wareNo}")
     fun getWarehouseItems(@PathVariable wareNo: Long,  model: Model): String {
         val items = itemService.getActiveItemsInWarehouse(wareNo)

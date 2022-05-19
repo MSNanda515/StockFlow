@@ -44,11 +44,20 @@
                 <div class="accordion-body ms-4">
                     <!--Buttons for item edit-->
                     <ul class="list-inline mb-3">
+
                         <li class="list-inline-item">
-                            <a href="/">
-                                <i class="fa-solid fa-file-circle-plus text-success h4"></i>
-                            </a>
+                            <span th:if="${isWareSelected}">
+                                <a th:href="@{/items/inventory/create(itemNo=${item.itemNo},wareNo=${selectedWareNo})}">
+                                    <i class="fa-solid fa-file-circle-plus text-success h4"></i>
+                                </a>
+                            </span>
+                            <span th:unless="${isWareSelected}">
+                                <a th:href="@{/items/inventory/create(itemNo=${item.itemNo})}">
+                                    <i class="fa-solid fa-file-circle-plus text-success h4"></i>
+                                </a>
+                            </span>
                         </li>
+
                         <li class="list-inline-item">
                             <a href="/">
                                 <i class="fa fa-edit text-info h4"></i></button>

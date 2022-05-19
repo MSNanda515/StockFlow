@@ -22,7 +22,8 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <li th:each="ware: ${wares}">
-                            <a class="dropdown-item" href="#" th:text="${ware.name}">Warehouse 1</a>
+                            <a class="dropdown-item" href="#" th:text="${ware.name}"
+                               th:href="@{/warehouse/{id}(id=${ware.wareNo})}">Warehouse 1</a>
                         </li>
                     </ul>
                 </li>
