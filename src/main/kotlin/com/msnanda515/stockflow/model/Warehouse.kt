@@ -32,6 +32,20 @@ class WarehouseVM(
                 location = "Location"
             )
         }
+
+        /**
+         * Prepares a view model from the warehouse object
+         */
+        fun prepareVM(ware: Warehouse): WarehouseVM {
+            return WarehouseVM(
+                wareNo = ware.wareNo,
+                name = ware.name,
+                location = ware.location,
+                aisle = ware.capacity.aisle,
+                section = ware.capacity.section,
+                level = ware.capacity.level
+            )
+        }
     }
 
     fun setDefaultValues(wareNo: Long) {

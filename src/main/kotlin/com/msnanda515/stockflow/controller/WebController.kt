@@ -4,10 +4,7 @@ import com.msnanda515.stockflow.exception.AlreadyExistsException
 import com.msnanda515.stockflow.exception.DoesNotExistsException
 import com.msnanda515.stockflow.exception.DoesNotMatchException
 import com.msnanda515.stockflow.exception.OutOfCapacityException
-import com.msnanda515.stockflow.model.ItemInventoryVM
-import com.msnanda515.stockflow.model.ItemStatus
-import com.msnanda515.stockflow.model.ItemVM
-import com.msnanda515.stockflow.model.WarehouseVM
+import com.msnanda515.stockflow.model.*
 import com.msnanda515.stockflow.service.ItemService
 import com.msnanda515.stockflow.service.WarehouseService
 import org.springframework.stereotype.Controller
@@ -236,7 +233,7 @@ class WebController(
     }
 
     /**
-     * Create an item
+     * Edit an item
      */
     @GetMapping("/items/edit/{itemNo}")
     fun getEditItem(@PathVariable itemNo: Long, @RequestParam(required = false, name = "wareNo") wareNoReq: Long?,
@@ -248,7 +245,7 @@ class WebController(
     }
 
     @PostMapping("/items/edit")
-    fun postEditInventory(@Valid @ModelAttribute("inventory") itemVM: ItemVM,
+    fun postEditItem(@Valid @ModelAttribute("inventory") itemVM: ItemVM,
                           bindingResult: BindingResult, model: Model): String {
         fun setCustFailModel() {
             val item = itemService.getItem(itemVM.itemNo)
@@ -298,12 +295,13 @@ class WebController(
     }
 
     @PostMapping("/items/delete")
-    fun postDeleteInventory(@Valid @ModelAttribute("inventory") itemVM: ItemVM,
+    fun postDeleteItem(@Valid @ModelAttribute("inventory") itemVM: ItemVM,
                           bindingResult: BindingResult, model: Model): String {
         fun setCustFailModel() {
-            val item = itemService.getItem(itemVM.itemNo)
+            val item = Item.createItem(itemVM)
             val wares = warehouseService.getAllWarehouses()
-            Util.addModelAttributesEditItem(model, item, wares)
+            Util.addModelAttributesEditItem(model, item, wares, itemVM.wareNo)
+            model.addAttribute("item", itemVM)
         }
 
         if (bindingResult.hasErrors()) {
@@ -322,4 +320,54 @@ class WebController(
         }
         return if (itemVM.wareNo == 0L) "redirect:/" else "redirect:/warehouse/${itemVM.wareNo}"
     }
+
+    /**
+     * Edit a warehouse
+     */
+    @GetMapping("/warehouse/edit/{wareNo}")
+    fun getEditWarehouse(@PathVariable wareNo: Long, model: Model): String {
+        val wares = warehouseService.getAllWarehouses()
+        val ware = wares.find { it.wareNo == wareNo }
+            ?: return "redirect:/" // Todo: Toasts
+
+        Util.addModelAttributesNavbar(model, ware.name, wares)
+        model.addAttribute("ware", WarehouseVM.prepareVM(ware))
+        model.addAttribute("minCap", ware.pallets.size)
+        return "editWarehouse"
+    }
+
+    @PostMapping("/warehouse/edit")
+    fun postEditWarehouse(@Valid @ModelAttribute("inventory") itemVM: ItemVM,
+                          bindingResult: BindingResult, model: Model): String {
+        fun setCustFailModel() {
+            val item = itemService.getItem(itemVM.itemNo)
+            val wares = warehouseService.getAllWarehouses()
+            Util.addModelAttributesEditItem(model, item, wares)
+        }
+
+        if (bindingResult.hasErrors()) {
+            // Prepare the context for model and show the errors UI
+            setCustFailModel()
+            return "editItem"
+        }
+
+        try {
+            itemService.editItem(itemVM)
+        } catch (exp: DoesNotExistsException) {
+            bindingResult.addError(FieldError("item", "itemNo",
+                exp.message ?: "Item No does not exist")
+            )
+            setCustFailModel()
+            return "editItem"
+        } catch (exp: DoesNotMatchException) {
+            bindingResult.addError(FieldError("item", "department",
+                exp.message ?: "department does not exist")
+            )
+            setCustFailModel()
+            return "editItem"
+        }
+
+        return if (itemVM.wareNo == 0L) "redirect:/" else "redirect:/warehouse/${itemVM.wareNo}"
+    }
+
 }
