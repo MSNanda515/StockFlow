@@ -25,7 +25,7 @@
     <H2 class="mt-5">
         Items: <span th:text="${selectedWareName}">All Items</span>
         <span th:if="${isWareSelected}">
-            <a  class="ms-3" th:href="@{/warehouse/edit/{id}(id=${selectedWareNo})}">
+            <a  class="ms-3" th:href="@{/warehouse/edit/{id}(id=${selectedWare.wareNo})}">
                 <i class="fa fa-edit text-info h4"></i></button>
             </a>
         </span>
