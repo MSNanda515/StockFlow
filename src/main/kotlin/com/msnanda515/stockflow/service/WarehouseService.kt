@@ -1,14 +1,16 @@
 package com.msnanda515.stockflow.service
 
-import com.msnanda515.stockflow.exception.AlreadyExistsException
-import com.msnanda515.stockflow.exception.DoesNotExistsException
-import com.msnanda515.stockflow.exception.OutOfCapacityException
+import com.msnanda515.stockflow.exception.*
 import com.msnanda515.stockflow.model.*
+import com.msnanda515.stockflow.repository.ItemRepository
 import com.msnanda515.stockflow.repository.WarehouseRepository
 import org.springframework.stereotype.Service
 
 @Service
-class WarehouseService(val warehouseRepository: WarehouseRepository) {
+class WarehouseService(
+        val warehouseRepository: WarehouseRepository,
+        val itemRepository: ItemRepository,
+    ) {
     /**
      * Creates and Persists a warehouse in the database
      * @param wareVm the view model of the warehouse to create
@@ -70,8 +72,10 @@ class WarehouseService(val warehouseRepository: WarehouseRepository) {
 
     /**
      * Edits the warehouse;
+     * @throws DoesNotExistsException if warehouse does not exist
+     * @throws WarehouseCapacityException if new capacity is invalid
      */
-    fun editWarehouse(wareVm: WarehouseVM) {
+    fun editWarehouse(wareVm: WarehouseVM): Warehouse {
         val wares = warehouseRepository.findByWareNo(wareVm.wareNo)
         if (wares.isEmpty()) {
             throw DoesNotExistsException("Warehouse with ${wareVm.wareNo} does not exist")
@@ -81,8 +85,34 @@ class WarehouseService(val warehouseRepository: WarehouseRepository) {
         ware.name = wareVm.name
         ware.location = wareVm.location
         val newCapacity = WarehouseCapacity(wareVm.aisle, wareVm.section, wareVm.level)
+        val oldCapacity = ware.capacity
         if (!ware.capacity.equals(newCapacity)) {
             ware.changeCapacity(newCapacity)
         }
+        warehouseRepository.save(ware)
+
+        if (!oldCapacity.isStrictlySmaller(newCapacity)) {
+            // change items pallet info warehouse resized
+            editItemsForWarehouse(ware)
+        }
+        return ware
+    }
+
+    /**
+     * Edits the item according to the change in the warehouse capacity
+     */
+    fun editItemsForWarehouse(ware: Warehouse) {
+        val palletMap = ware.pallets.associateBy { it.id }
+        val items = itemRepository.findAllByStatus(ItemStatus.ACTIVE)
+        items.forEach {
+            it.pallets.forEach {p ->
+                run {
+                    if (palletMap.contains(p.id)) {
+                        p.palletLoc = palletMap[p.id]!!.palletLoc
+                    }
+                }
+            }
+        }
+        itemRepository.saveAll(items)
     }
 }

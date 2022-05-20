@@ -111,6 +111,8 @@ data class Warehouse(
         for (i in pallets.indices) {
             pallets[i].palletLoc = availLocs[i]
         }
+        println("got pos")
+        println("Pallets reassigned")
     }
 }
 
@@ -180,7 +182,7 @@ data class WarehouseCapacity(
      * Returns true if all dimensions of new capacity are >= to the original capacity
      */
     fun isStrictlySmaller(capacity: WarehouseCapacity): Boolean {
-        if (aisle >= capacity.aisle && section >= capacity.section && level >= capacity.level) {
+        if (aisle <= capacity.aisle && section <= capacity.section && level <= capacity.level) {
             return true
         }
         return false

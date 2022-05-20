@@ -1,9 +1,6 @@
 package com.msnanda515.stockflow.controller
 
-import com.msnanda515.stockflow.exception.AlreadyExistsException
-import com.msnanda515.stockflow.exception.DoesNotExistsException
-import com.msnanda515.stockflow.exception.DoesNotMatchException
-import com.msnanda515.stockflow.exception.OutOfCapacityException
+import com.msnanda515.stockflow.exception.*
 import com.msnanda515.stockflow.model.*
 import com.msnanda515.stockflow.service.ItemService
 import com.msnanda515.stockflow.service.WarehouseService
@@ -350,22 +347,21 @@ class WebController(
         }
 
         try {
-            itemService.editItem(itemVM)
+            warehouseService.editWarehouse(wareVm)
+            return "redirect:/warehouse/${wareVm.wareNo}"
+        } catch (exp: WarehouseCapacityException) {
+            bindingResult.addError(FieldError("ware", "aisle",
+                exp.message ?: "Warehouse capacity exception")
+            )
+            setCustFailModel()
+            return "editWarehouse"
         } catch (exp: DoesNotExistsException) {
-            bindingResult.addError(FieldError("item", "itemNo",
-                exp.message ?: "Item No does not exist")
+            bindingResult.addError(FieldError("ware", "wareNo",
+                exp.message ?: "ware no does not exist")
             )
             setCustFailModel()
-            return "editItem"
-        } catch (exp: DoesNotMatchException) {
-            bindingResult.addError(FieldError("item", "department",
-                exp.message ?: "department does not exist")
-            )
-            setCustFailModel()
-            return "editItem"
+            return "editWarehouse"
         }
-
-        return if (itemVM.wareNo == 0L) "redirect:/" else "redirect:/warehouse/${itemVM.wareNo}"
     }
 
 }

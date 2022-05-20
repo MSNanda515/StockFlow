@@ -35,7 +35,8 @@
             <input class="form-control" id="aisle" th:field="*{aisle}" aria-describedby="capacityHelp"/>
             <span th:if="${#fields.hasErrors('aisle')}" th:errors="*{aisle}" class="text-danger">error</span>
             <div id="capacityHelp" class="form-text">
-                Net capacity should exceed <span class="font-weight-bold" th:text="${minCap}"></span>
+                Net capacity should exceed <span class="font-weight-bold" th:text="${minCap}"></span> pallets
+                <br/> Note: Changing warehouse capacity can be an expensive operation!
             </div>
         </div>
         <div class="mb-3 col-md-4">
@@ -49,6 +50,9 @@
             <span th:if="${#fields.hasErrors('level')}" th:errors="*{level}" class="text-danger">error</span>
         </div>
 
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </div>
     </form>
 
 </div>

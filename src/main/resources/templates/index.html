@@ -1,3 +1,5 @@
+<!--Modal Attributes: isWareSelected, -->
+
 <!--Headers-->
 <header th:insert="fragments/header.html"> </header>
 <!--Navbars-->
@@ -29,6 +31,10 @@
         </span>
     </H2>
 
+    <div th:if="${isWareSelected}">
+        <!--todo: add warehouse info-->
+        <span></span>
+    </div>
     <div class="accordion" id="accordionItems">
 
         <!--Accordion items-->
@@ -39,6 +45,7 @@
                     <span th:text="${item.getDisplayStr()}"></span>
                 </button>
             </h2>
+            <!--todo: add pallet summary-->
             <!--Pallet info, item add-ons-->
             <div th:id="@{|itemBlockId-${itemStat.count}|}" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionItems">
                 <div class="accordion-body ms-4">
