@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
 
 /**
- * Used when warehouse runs out of capacity to store new items
+ * Thrown when invalid capacity required for warehouse
  */
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-class OutOfCapacityException(msg: String) : Exception(msg)
+class InvalidCapacityException(msg: String) : Exception(msg)

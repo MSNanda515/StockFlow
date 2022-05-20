@@ -337,18 +337,16 @@ class WebController(
     }
 
     @PostMapping("/warehouse/edit")
-    fun postEditWarehouse(@Valid @ModelAttribute("inventory") itemVM: ItemVM,
+    fun postEditWarehouse(@Valid @ModelAttribute("ware") wareVm: WarehouseVM,
                           bindingResult: BindingResult, model: Model): String {
         fun setCustFailModel() {
-            val item = itemService.getItem(itemVM.itemNo)
-            val wares = warehouseService.getAllWarehouses()
-            Util.addModelAttributesEditItem(model, item, wares)
+
         }
 
         if (bindingResult.hasErrors()) {
             // Prepare the context for model and show the errors UI
             setCustFailModel()
-            return "editItem"
+            return "editWarehouse"
         }
 
         try {
