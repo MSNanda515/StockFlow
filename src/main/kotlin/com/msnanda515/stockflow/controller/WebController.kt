@@ -363,4 +363,27 @@ class WebController(
         }
     }
 
+    /**
+     * Send a shipment
+     */
+    @GetMapping("/warehouse/shipment/{wareNo}")
+    fun getSendShipment(@PathVariable wareNo: Long, model: Model): String {
+        val wares = warehouseService.getAllWarehouses()
+        val ware = wares.find { it.wareNo == wareNo }
+            ?: return "redirect:/" // Todo: Toasts
+        val items = itemService.getActiveItemsInWarehouse(wareNo)
+            .map { ItemVM.prepareVM(it) }
+
+        if (wares.size < 2) {
+            // cannot ship an item to itself
+            model.addAttribute("wareSelected", false)
+            return "shipItem"
+        }
+
+        val otherWares = wares.filter { it.wareNo != wareNo }
+        val shipment = ShipmentVM(wareNo, otherWares[0].wareNo, items.map { ShipmentItemVM.prepareShipmentVM(it) })
+        Util.addModelAttributesShipItems(model, ware.name, wares, otherWares, shipment, true,
+            shipment.items.isNotEmpty())
+        return "shipItem"
+    }
 }

@@ -1,0 +1,73 @@
+<!--Model Attributes: wareSelected, itemsExist, toWares, -->
+
+<!--Headers-->
+<header th:insert="fragments/header.html"> </header>
+<!--Navbars-->
+<span th:insert="fragments/navbar.html"> </span>
+
+<!--Content-->
+<div class="container-fluid mx-auto px-5 py-4">
+    <h1>Ship Items</h1>
+
+
+    <form th:object="${shipment}" th:action="@{/items/ship}" method="post"
+          class="row g-3" th:if="${wareSelected && itemsExist}">
+
+        <div class="mb-3 col-md-6">
+            <label for="fromWare" class="form-label">From Warehouse</label>
+            <input id="fromWare" type="text" class="form-control" th:field="*{from}" readonly />
+        </div>
+
+        <div class="mb-3 col-md-6">
+            <label for="toWare" class="form-label">To Warehouse</label>
+            <select id="toWare" class="form-select" th:field="*{to}" name="to">
+                <option th:each="it : ${toWares}" th:value="${it.wareNo}"> <!--Todo: can optimize this-->
+                    <span th:text="${it.toString()}"></span>
+                </option>
+            </select>
+        </div>
+
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" style="width: 20%">Include</th>
+                <th scope="col" style="width: 50%">Item</th>
+                <th scope="col" style="width: 30%">Units</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="shipItem, itemStat : *{items}">
+                <th scope="row">
+                    <input type="checkbox" class="form-check-input"
+                           th:field="*{items[__${itemStat.index}__].itemSelected}">
+                </th>
+                <td><span th:text="${shipItem.item.getDisplayStr()}"></span></td>
+                <td>
+                    <input type="number" class="form-control"
+                           style="width: 6rem" th:field="*{items[__${itemStat.index}__].units}">
+                </td>
+                <input type="hidden" class="form-control" th:field="*{items[__${itemStat.index}__].itemNo}" readonly />
+
+<!--                <td><input th:field="*{items[__${itemStat.index}__].itemSelected}" /></td>-->
+<!--                <td><input type="checkbox"  /></td>-->
+            </tr>
+
+            <tr th:each="shipItem, stat : *{items}">
+
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </div>
+
+    </form>
+
+
+</div>
+
+<!--Footer-->
+<span th:insert="fragments/footer.html"> </span>
