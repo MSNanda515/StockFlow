@@ -73,5 +73,18 @@ class WarehouseService(val warehouseRepository: WarehouseRepository) {
                 "Capacity ${ware.capacity.getCapacity()}: ${ware.capacity.toString()} ")
     }
 
-
+    /**
+     * Deletes the pallets for the given items for all warehouses
+     */
+    fun deletePalletsForItem(item: Item) {
+        val wares = warehouseRepository.findAll()
+        if (item.pallets.isEmpty()) {
+            return
+        }
+        wares.forEach {
+            // delete all pallets for the item
+            it.pallets = it.pallets.filter { p -> p.itemNo!=item.itemNo } as MutableList<Pallet>
+        }
+        warehouseRepository.saveAll(wares)
+    }
 }

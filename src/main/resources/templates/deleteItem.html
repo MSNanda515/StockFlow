@@ -23,7 +23,7 @@
             <div class="mb-3 col-md-6">
                 <label for="itemLabel" class="form-label">Item No</label>
                 <input type="text" class="form-control" id="itemLabel" th:value="${item.getDisplayStr()}" readonly>
-                <div id="itemNoHelp" class="form-text">Cannot be changed</div>
+                <div id="itemNoHelp" class="form-text">Note: Will mark item as inactive for all warehouses</div>
                 <span th:if="${#fields.hasErrors('itemNo')}" th:errors="*{itemNo}" class="text-danger">error</span>
             </div>
 

@@ -311,6 +311,15 @@ class WebController(
             setCustFailModel()
             return "deleteItem"
         }
-
+        try {
+            itemService.deleteItem(itemVM)
+        } catch(exp: DoesNotExistsException) {
+            bindingResult.addError(FieldError("item", "itemNo",
+                exp.message ?: "department does not exist")
+            )
+            setCustFailModel()
+            return "deleteItem"
+        }
+        return if (itemVM.wareNo == 0L) "redirect:/" else "redirect:/warehouse/${itemVM.wareNo}"
     }
 }

@@ -142,12 +142,19 @@ class ItemService(
         itemRepository.save(item)
     }
 
+    /**
+     * Deletes item
+     * @throws DoesNotExistsException if item does not exist
+     */
     fun deleteItem(itemVm: ItemVM) {
         val items = itemRepository.findAllByItemNo(itemVm.itemNo)
         if (items.isEmpty()) {
             throw DoesNotExistsException("Item with ${itemVm.itemNo} does not exist")
         }
-
+        val item = items[0]
+        warehouseService.deletePalletsForItem(item)
+        // set the item status to inactive
+        item.status = ItemStatus.INACTIVE
+        itemRepository.save(item)
     }
-
 }
