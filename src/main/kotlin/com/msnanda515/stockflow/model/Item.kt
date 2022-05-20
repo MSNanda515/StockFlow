@@ -60,7 +60,7 @@ class ItemVM(
     var description: String,
     @field:NotNull
     var department: Department,
-    val wareNo: Long = 1,
+    var wareNo: Long = 1,
     @field:Min(0)
     var units: Int = 0,
     var pallets: MutableList<Pallet> = mutableListOf()

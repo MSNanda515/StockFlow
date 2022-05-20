@@ -32,14 +32,15 @@
 
         <div class="mb-3 col-md-4">
             <label for="department" class="form-label">Department</label>
-            <select id="department" class="form-select" aria-label="Item Status" name="department"
-                    th:field="*{department}">
+            <select id="department" class="form-select" aria-label="Department" name="department"
+                    th:field="*{department}" aria-describedby="departmentHelp">
                 <option th:each="depOpt : ${T(com.msnanda515.stockflow.model.Department).values()}"
                         th:value="${depOpt}"  >
                     <span th:text="${depOpt.disp}"></span>
                     (Pallet Capacity: <span th:text="${depOpt.palleteCap}"></span>)
                 </option>
             </select>
+            <div id="departmentHelp" class="form-text">Cannot be changed later</div>
         </div>
 
 

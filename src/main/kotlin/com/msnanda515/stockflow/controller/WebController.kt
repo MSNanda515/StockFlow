@@ -2,8 +2,10 @@ package com.msnanda515.stockflow.controller
 
 import com.msnanda515.stockflow.exception.AlreadyExistsException
 import com.msnanda515.stockflow.exception.DoesNotExistsException
+import com.msnanda515.stockflow.exception.DoesNotMatchException
 import com.msnanda515.stockflow.exception.OutOfCapacityException
 import com.msnanda515.stockflow.model.ItemInventoryVM
+import com.msnanda515.stockflow.model.ItemStatus
 import com.msnanda515.stockflow.model.ItemVM
 import com.msnanda515.stockflow.model.WarehouseVM
 import com.msnanda515.stockflow.service.ItemService
@@ -82,11 +84,6 @@ class WebController(
             }
         }
     }
-
-//    @GetMapping("/items/{wareNo}")
-//    fun getItemsWarehouse(@PathVariable wareNo: Long, model: Model): String {
-//
-//    }
 
     /**
      * Create an item
@@ -236,5 +233,84 @@ class WebController(
         )
 
         return "index"
+    }
+
+    /**
+     * Create an item
+     */
+    @GetMapping("/items/edit/{itemNo}")
+    fun getEditItem(@PathVariable itemNo: Long, @RequestParam(required = false, name = "wareNo") wareNoReq: Long?,
+                    model: Model): String {
+        val item = itemService.getItem(itemNo)
+        val wares = warehouseService.getAllWarehouses()
+        Util.addModelAttributesEditItem(model, item, wares, wareNoReq ?: 0)
+        return "editItem"
+    }
+
+    @PostMapping("/items/edit")
+    fun postEditInventory(@Valid @ModelAttribute("inventory") itemVM: ItemVM,
+                          bindingResult: BindingResult, model: Model): String {
+        fun setCustFailModel() {
+            val item = itemService.getItem(itemVM.itemNo)
+            val wares = warehouseService.getAllWarehouses()
+            Util.addModelAttributesEditItem(model, item, wares)
+        }
+
+        if (bindingResult.hasErrors()) {
+            // Prepare the context for model and show the errors UI
+            setCustFailModel()
+            return "editItem"
+        }
+
+        try {
+            itemService.editItem(itemVM)
+        } catch (exp: DoesNotExistsException) {
+            bindingResult.addError(FieldError("item", "itemNo",
+                exp.message ?: "Item No does not exist")
+            )
+            setCustFailModel()
+            return "editItem"
+        } catch (exp: DoesNotMatchException) {
+            bindingResult.addError(FieldError("item", "department",
+                exp.message ?: "department does not exist")
+            )
+            setCustFailModel()
+            return "editItem"
+        }
+
+        return if (itemVM.wareNo == 0L) "redirect:/" else "redirect:/warehouse/${itemVM.wareNo}"
+    }
+
+    /**
+     * Delete an item
+     */
+    @GetMapping("/items/delete/{itemNo}")
+    fun getDeleteItem(@PathVariable itemNo: Long, @RequestParam(required = false, name = "wareNo") wareNoReq: Long?,
+                    model: Model): String {
+        val items = itemService.getAllActiveItems()
+        val item = items.find { it.itemNo == itemNo }
+            ?: throw DoesNotExistsException("Item with $itemNo does not exist")
+        // todo: verify flow
+        val wares = warehouseService.getAllWarehouses()
+        Util.addModelAttributesEditItem(model, item, wares, wareNoReq ?: 0)
+        model.addAttribute("itemsExist", items.isNotEmpty())
+        return "deleteItem"
+    }
+
+    @PostMapping("/items/delete")
+    fun postDeleteInventory(@Valid @ModelAttribute("inventory") itemVM: ItemVM,
+                          bindingResult: BindingResult, model: Model): String {
+        fun setCustFailModel() {
+            val item = itemService.getItem(itemVM.itemNo)
+            val wares = warehouseService.getAllWarehouses()
+            Util.addModelAttributesEditItem(model, item, wares)
+        }
+
+        if (bindingResult.hasErrors()) {
+            // Prepare the context for model and show the errors UI
+            setCustFailModel()
+            return "deleteItem"
+        }
+
     }
 }

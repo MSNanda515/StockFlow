@@ -71,7 +71,6 @@ class WarehouseService(val warehouseRepository: WarehouseRepository) {
         // if more pallets required, out of capacity
         throw OutOfCapacityException("Warehouse $wareNo out of Capacity, has ${warePallets.size} pallets, " +
                 "Capacity ${ware.capacity.getCapacity()}: ${ware.capacity.toString()} ")
-        return palletLocs
     }
 
 

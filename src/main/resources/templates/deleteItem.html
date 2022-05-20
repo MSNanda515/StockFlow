@@ -1,0 +1,49 @@
+<!--Headers-->
+<header th:insert="fragments/header.html"> </header>
+<!--Navbars-->
+<span th:insert="fragments/navbar.html"> </span>
+
+<!--Model Attributes: itemsExist, item-->
+
+<!--Content-->
+<div class="container-fluid mx-auto px-5 py-4">
+    <h1>Delete Item</h1>
+
+    <div th:if="${itemsExist}" class="row g-3">
+        <form th:object="${item}" th:action="@{/items/delete}" method="post"
+              class="row g-3">
+
+            <!--Hidden fields-->
+            <input type="hidden" class="form-control" id="itemNo" th:field="*{itemNo}" readonly>
+            <input type="hidden" class="form-control" id="name" th:field="*{name}" readonly>
+            <input type="hidden" class="form-control" id="description" th:field="*{description}" readonly>
+            <input type="hidden" class="form-control" id="department" th:field="*{department}" readonly>
+            <input type="hidden" class="form-control" id="wareNo" th:field="*{wareNo}" readonly />
+
+            <div class="mb-3 col-md-6">
+                <label for="itemLabel" class="form-label">Item No</label>
+                <input type="text" class="form-control" id="itemLabel" th:value="${item.getDisplayStr()}" readonly>
+                <div id="itemNoHelp" class="form-text">Cannot be changed</div>
+                <span th:if="${#fields.hasErrors('itemNo')}" th:errors="*{itemNo}" class="text-danger">error</span>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary mt-3">Submit</button>
+            </div>
+
+        </form>
+    </div>
+
+
+    <!--If item does not exist-->
+    <div th:unless="${itemsExist}" class="m-3">
+        <a href="/items/create" type="button" class="btn btn-primary mx-2" aria-label="createItemHelp">
+            Add Item
+        </a>
+        <div id="createItemHelp" class="form-text">Create Item First to delete</div>
+    </div>
+
+</div>
+
+<!--Footer-->
+<span th:insert="fragments/footer.html"> </span>

@@ -109,4 +109,45 @@ class ItemService(
         return (itemRepository.findTopByOrderByItemNoDesc()?.itemNo ?: 0) + 1
     }
 
+    /**
+     * gets the item asked for
+     * @throws DoesNotExistsException if item with itemNo does not exist
+     */
+    fun getItem(itemNo: Long): Item {
+        val items = itemRepository.findAllByItemNo(itemNo)
+        if (items.isEmpty()) {
+            throw DoesNotExistsException("Item with $itemNo does not exist")
+        }
+        return items[0]
+    }
+
+    /**
+     * Edit the item
+     * @throws DoesNotExistsException if the item to be edited does not exist
+     * @throws DoesNotMatchException if the item's department does not match with expected
+     */
+    fun editItem(itemVm: ItemVM) {
+        val items = itemRepository.findAllByItemNo(itemVm.itemNo)
+        if (items.isEmpty()) {
+            throw DoesNotExistsException("Item with ${itemVm.itemNo} does not exist")
+        }
+        val item = items[0]
+        if (item.department != itemVm.department) {
+            throw DoesNotMatchException("Item's department does not match, expected ${item.department}" +
+                    ", got ${itemVm.department}")
+        }
+
+        item.name = itemVm.name
+        item.description = itemVm.description
+        itemRepository.save(item)
+    }
+
+    fun deleteItem(itemVm: ItemVM) {
+        val items = itemRepository.findAllByItemNo(itemVm.itemNo)
+        if (items.isEmpty()) {
+            throw DoesNotExistsException("Item with ${itemVm.itemNo} does not exist")
+        }
+
+    }
+
 }
