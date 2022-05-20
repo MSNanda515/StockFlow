@@ -36,9 +36,7 @@ class WebController(
         val itemVms = items.map { ItemVM.prepareVM(it) }
 
         // pass required objects to model
-        model.addAttribute("wares", wares)
-        model.addAttribute("selectedWareName", selectedWareName)
-        model.addAttribute("items", itemVms)
+        Util.addModelAttributesDash(model, itemVms, wares,  false, null, selectedWareName,)
         return "index"
     }
 
@@ -223,7 +221,8 @@ class WebController(
         Util.addModelAttributesDash(
             model = model, itemVms = itemVms, wares = wares,
             selectedWareName = selectedWare?.name ?: "Warehouse" ,
-            selectedWareNo = selectedWare?.wareNo ?: 0, isWareSelected = true,
+            selectedWare = if (selectedWare != null) WarehouseVM.prepareVM(selectedWare) else null ,
+            isWareSelected = true,
         )
 
         return "index"

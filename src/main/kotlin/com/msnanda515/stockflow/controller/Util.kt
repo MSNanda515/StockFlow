@@ -1,9 +1,6 @@
 package com.msnanda515.stockflow.controller
 
-import com.msnanda515.stockflow.model.Item
-import com.msnanda515.stockflow.model.ItemStatus
-import com.msnanda515.stockflow.model.ItemVM
-import com.msnanda515.stockflow.model.Warehouse
+import com.msnanda515.stockflow.model.*
 import org.springframework.ui.Model
 
 class Util {
@@ -20,12 +17,14 @@ class Util {
          * Adds the ui attributes required for dashboard
          */
         fun addModelAttributesDash(model: Model, itemVms: List<ItemVM>,
-                                   wares: List<Warehouse>, selectedWareName: String = "Warehouse",
-                                   selectedWareNo: Long = 0, isWareSelected: Boolean = false) {
+                                   wares: List<Warehouse>, isWareSelected: Boolean = false, selectedWare: WarehouseVM?,
+                                   selectedWareName: String = "Warehouse",) {
             addModelAttributesNavbar(model, selectedWareName, wares)
             model.addAttribute("items", itemVms)
             model.addAttribute("isWareSelected", isWareSelected) // determine if edit button shown for ware
-            model.addAttribute("selectedWareNo", selectedWareNo) // determine if edit button shown for ware
+            if (isWareSelected && selectedWare != null) {
+                model.addAttribute("selectedWare", selectedWare) // determine if edit button shown for ware
+            }
         }
 
         /**

@@ -162,6 +162,10 @@ class WarehouseVM(
         this.name = "Ware $wareNo"
         this.location = "Loc $wareNo"
     }
+
+    fun getDisplayStr(): String {
+        return "Warehouse No: $wareNo, Name: $name, Location: $location, Capacity: ($aisle, $section, $level)"
+    }
 }
 
 

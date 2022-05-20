@@ -1,4 +1,4 @@
-<!--Modal Attributes: isWareSelected, -->
+<!--Modal Attributes: isWareSelected(selectedWareNo, items), Navbar -->
 
 <!--Headers-->
 <header th:insert="fragments/header.html"> </header>
@@ -30,6 +30,10 @@
             </a>
         </span>
     </H2>
+
+    <div th:if="${isWareSelected}" class="mb-4">
+        <span th:text="${selectedWare.getDisplayStr()}"></span>
+    </div>
 
     <div th:if="${isWareSelected}">
         <!--todo: add warehouse info-->
