@@ -1,0 +1,50 @@
+<!--Headers-->
+<header th:insert="fragments/header.html"> </header>
+<!--Navbars-->
+<span th:insert="fragments/navbar.html"> </span>
+
+<!--Content-->
+<div class="container-fluid mx-auto px-5 py-4">
+    <h1>Create Warehouse</h1>
+    <form th:object="${ware}" th:action="@{/warehouse/create}" method="post" class="row g-3">
+        <div class="mb-3 col-md-6">
+            <label for="warehouseNo" class="form-label">Warehouse Id</label>
+            <input type="text" class="form-control" id="warehouseNo" aria-describedby="warehouseNoHelp"
+                   th:field="*{wareNo}"/>
+            <div id="warehouseNoHelp" class="form-text">Should be unique</div>
+            <span th:if="${#fields.hasErrors('wareNo')}" th:errors="*{wareNo}" class="text-danger">error</span>
+        </div>
+
+        <div class="mb-3 col-md-6">
+            <label for="wareName" class="form-label">Name</label>
+            <input class="form-control" id="wareName" th:field="*{name}"/>
+            <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger">error</span>
+        </div>
+        <div class="mb-3 col-md-12">
+            <label for="wareLoc" class="form-label">Location</label>
+            <input class="form-control" id="wareLoc" th:field="*{location}"/>
+            <span th:if="${#fields.hasErrors('location')}" th:errors="*{location}" class="text-danger">error</span>
+        </div>
+        <h3>Capacity</h3>
+        <div class="mb-3 col-md-4">
+            <label for="aisle" class="form-label">Aisles</label>
+            <input class="form-control" id="aisle" th:field="*{aisle}"/>
+            <span th:if="${#fields.hasErrors('aisle')}" th:errors="*{aisle}" class="text-danger">error</span>
+        </div>
+        <div class="mb-3 col-md-4">
+            <label for="section" class="form-label">Sections</label>
+            <input class="form-control" id="section" th:field="*{section}"/>
+            <span th:if="${#fields.hasErrors('section')}" th:errors="*{section}" class="text-danger">error</span>
+        </div>
+        <div class="mb-3 col-md-4">
+            <label for="level" class="form-label">Levels</label>
+            <input class="form-control" id="level" th:field="*{level}"/>
+            <span th:if="${#fields.hasErrors('level')}" th:errors="*{level}" class="text-danger">error</span>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+
+</div>
+
+<!--Footer-->
+<span th:insert="fragments/footer.html"> </span>

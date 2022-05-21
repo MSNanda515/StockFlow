@@ -1,0 +1,89 @@
+<!--Model Attributes: wareExist, receive, receiving  -->
+
+<!--Headers-->
+<header th:insert="fragments/header.html"> </header>
+<!--Navbars-->
+<span th:insert="fragments/navbar.html"> </span>
+
+<!--Content-->
+<div class="container-fluid mx-auto px-5 py-4">
+    <h1>Receive Shipment: <span th:text="${selectedWareName}"></span></h1> <!--TODO: add name-->
+
+    <form th:object="${receive}" th:action="@{/warehouse/receive}" method="post"
+          class="row g-3">
+
+        <input type="hidden" th:field="*{shipmentIds}" id="shipmentIds">
+        <input type="hidden" th:field="*{at}" id="curWareNo">
+
+        <span style="display: none" id="shipRows" th:text="${receiving.size()}"></span>
+
+        <span th:if="${#fields.hasErrors('shipmentIds')}" th:errors="*{shipmentIds}" class="text-danger">error</span>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" style="width: 15%">Accept</th>
+                <th scope="col" style="width: 70%">Shipment</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="recItem, itemStat : ${receiving}">
+                <span style="display: none" th:id="@{|shipmentId-${itemStat.count}|}" th:text="${recItem.id}"></span>
+                <td>
+                    <input type="checkbox" class="form-check-input" value="false"
+                           th:id="@{|shipSelected-${itemStat.count}|}">
+                </td>
+                <td>
+                    <span>
+                      <a style="text-decoration: none;" data-bs-toggle="collapse"
+                         role="button" aria-expanded="false" aria-controls="collapseExample"
+                         th:href="@{|#shipBlock-${itemStat.count}|}">
+                        <i class="fa-solid fa-chevron-down"></i>
+                      </a>
+                      <span class="mx-3" th:text="${recItem.getDisplayStr()}"></span>
+                    </span>
+
+                    <div class="collapse" th:id="@{|shipBlock-${itemStat.count}|}">
+                        <div class="ms-4 ps-5">
+                            <div th:each="it, itemStat : ${recItem.items}" th:text="${it.getDisplayStr()}"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="col-12" style="display: none">
+            <button id="formSubmit" type="submit" class="btn btn-primary mt-3">Submit</button>
+        </div>
+
+    </form>
+
+    <div class="col-12" th:unless="${#lists.isEmpty(receiving)}">
+        <button onclick="submitReceiveShipmentForm()" class="btn btn-primary mt-3">Submit</button>
+    </div>
+
+</div>
+
+<script>
+    let submitReceiveShipmentForm = function() {
+        // get relevant input tags
+        let submitButton = document.getElementById("formSubmit")
+        let shipmentIdsEl = document.getElementById("shipmentIds")
+        let numItems = parseInt(document.getElementById("shipRows").textContent)
+        let shipmentIds = []
+
+        for (let i = 1; i <= numItems; i++) {
+            let isShipmentSelected = document.getElementById(`shipSelected-${i}`).checked
+            if (isShipmentSelected) {
+                let shipId = document.getElementById(`shipmentId-${i}`).innerText
+                shipmentIds.push(shipId)
+            }
+        }
+        shipmentIdsEl.value = shipmentIds.join(",")
+        submitButton.click()
+    }
+</script>
+
+<!--Footer-->
+<span th:insert="fragments/footer.html"> </span>

@@ -1,0 +1,60 @@
+<!--Headers-->
+<header th:insert="fragments/header.html"> </header>
+<!--Navbars-->
+<span th:insert="fragments/navbar.html"> </span>
+
+<!--Content-->
+<div class="container-fluid mx-auto px-5 py-4">
+    <h1>Edit Item</h1>
+
+
+    <form th:object="${item}" th:action="@{/items/edit}" method="post"
+          class="row g-3" th:if="${isItemActive}">
+
+        <div class="mb-3 col-md-6">
+            <label for="itemNo" class="form-label">Item No</label>
+            <input type="text" class="form-control" id="itemNo" aria-describedby="itemNoHelp"
+                   th:field="*{itemNo}" readonly>
+            <div id="itemNoHelp" class="form-text">Cannot be changed</div>
+            <span th:if="${#fields.hasErrors('itemNo')}" th:errors="*{itemNo}" class="text-danger">error</span>
+        </div>
+
+        <div class="mb-3 col-md-6">
+            <label for="itemName" class="form-label">Name</label>
+            <input type="text" class="form-control" id="itemName" th:field="*{name}">
+            <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger">error</span>
+        </div>
+
+        <div class="mb-3 col-md-8">
+            <label for="description" class="form-label">Description</label>
+            <input type="text" class="form-control" id="description" th:field="*{description}">
+            <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="text-danger">error</span>
+        </div>
+
+        <div class="mb-3 col-md-4">
+            <label for="department" class="form-label">Department</label>
+            <input type="text" class="form-control" id="department" aria-describedby="departmentHelp"
+                   th:field="*{department}" readonly>
+            <span th:if="${#fields.hasErrors('department')}" th:errors="*{department}" class="text-danger">error</span>
+        </div>
+
+        <input type="hidden" class="form-control" id="wareNo" th:field="*{wareNo}" readonly />
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </div>
+
+    </form>
+
+    <div th:unless="${isItemActive}">
+        <!--TODO: Change url for undo deletion-->
+        <a href="/warehouse/create" type="button" class="btn btn-primary mx-2" aria-label="createWareHelp">
+            Restore Item First
+        </a>
+        <div id="createWareHelp" class="form-text">Only active items can be edited!</div>
+    </div>
+
+</div>
+
+<!--Footer-->
+<span th:insert="fragments/footer.html"> </span>

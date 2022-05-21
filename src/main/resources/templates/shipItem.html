@@ -1,0 +1,134 @@
+<!--Model Attributes: wareSelected, itemsExist, toWares, -->
+
+<!--Headers-->
+<header th:insert="fragments/header.html"> </header>
+<!--Navbars-->
+<span th:insert="fragments/navbar.html"> </span>
+
+<!--Content-->
+<div class="container-fluid mx-auto px-5 py-4">
+    <h1>Ship Items</h1>
+
+
+    <form th:object="${shipment}" th:action="@{/warehouse/shipment}" method="post"
+          class="row g-3" th:if="${wareSelected && itemsExist}">
+        <div class="mb-3 col-md-6">
+            <label for="fromWare" class="form-label">From Warehouse</label>
+            <input id="fromWare" type="text" class="form-control" th:field="*{from}" readonly />
+        </div>
+
+        <div class="mb-3 col-md-6">
+            <label for="toWare" class="form-label">To</label>
+            <select id="toWare" class="form-select" th:field="*{to}" name="to">
+                <!--Customer-->
+                <option value="0"> <!--Todo: can optimize this-->
+                    <span>Customer</span>
+                </option>
+                <option th:each="it : ${toWares}" th:value="${it.wareNo}"> <!--Todo: can optimize this-->
+                    <span th:text="${it.toString()}"></span>
+                </option>
+            </select>
+        </div>
+
+        <div class="my-2">
+            <span th:if="${#fields.hasErrors('itemNos')}" th:errors="*{itemNos}" class="text-danger">error</span>
+            <span th:if="${#fields.hasErrors('itemUnits')}" th:errors="*{itemUnits}" class="text-danger">error</span>
+        </div>
+
+        <input type="hidden" class="form-control" th:field="*{itemNos}" id="shipmentItemNos">
+        <input type="hidden" class="form-control" th:field="*{itemUnits}" id="shipmentItemUnits">
+
+        <span style="display: none" id="itemRows" th:text="${items.size()}"></span>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" style="width: 20%">Include</th>
+                <th scope="col" style="width: 50%">Item</th>
+                <th scope="col" style="width: 30%">Units</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="shipItem, itemStat : ${items}">
+                <td>
+                    <input type="checkbox" class="form-check-input" value="false"
+                           th:attr="onclick=@{|EnableDisableTextBox(this,${itemStat.count})|}"
+                           onclick="EnableDisableTextBox(this)"
+                           th:id="@{|itemSelected-${itemStat.count}|}">
+                </td>
+                <td><span th:text="${shipItem.getDisplayStr()}"></span></td>
+                <td>
+                    <input type="number" class="form-control"
+                           value="0"
+                           th:id="@{|itemUnits-${itemStat.count}|}" style="width: 6rem" disabled>
+                </td>
+                <span style="display: none" th:id="@{|itemNo-${itemStat.count}|}" th:text="${shipItem.itemNo}"></span>
+            </tr>
+
+            </tbody>
+        </table>
+
+        <div class="col-12" style="display: none">
+            <button id="formSubmit" type="submit" class="btn btn-primary mt-3">Submit</button>
+        </div>
+    </form>
+
+    <div class="col-12" th:unless="${#lists.isEmpty(items)}">
+        <button onclick="submitCreateShipmentForm()" class="btn btn-primary mt-3">Submit</button>
+    </div>
+
+    <div class="col-12" th:if="${#lists.isEmpty(items)}">
+        <div>Warehouse is empty</div>
+        <span th:if="${wareSelected}">
+            <a class="btn btn-primary mt-3"
+                    th:href="@{/items/inventory/create(wareNo=${shipment.from})}">
+                Create Inventory
+            </a>
+        </span>
+        <span th:unless="${wareSelected}">
+            <a class="btn btn-primary mt-3" href="/items/inventory/create">
+                Create Inventory
+            </a>
+        </span>
+    </div>
+</div>
+
+<script>
+    let submitCreateShipmentForm = function() {
+        // get relevant input tags
+        let submitButton = document.getElementById("formSubmit")
+        let itemNosEl = document.getElementById("shipmentItemNos")
+        let itemUnitsEl = document.getElementById("shipmentItemUnits")
+        let numItems = parseInt(document.getElementById("itemRows").textContent)
+        let itemNos = []
+        let itemUnits = []
+
+        for (let i = 1; i <= numItems; i++) {
+            let isItemSelected = document.getElementById(`itemSelected-${i}`).checked
+            if (isItemSelected) {
+                let itemNo = document.getElementById(`itemNo-${i}`).innerText
+                let units = document.getElementById(`itemUnits-${i}`).value
+                let parsedUnits = parseInt(units)
+                if (isNaN(parsedUnits) || parsedUnits <= 0) {
+                    continue
+                }
+                itemNos.push(itemNo)
+                itemUnits.push(units)
+            }
+        }
+        itemNosEl.value = itemNos.join(",")
+        itemUnitsEl.value = itemUnits.join(",")
+        submitButton.click()
+    }
+
+    function EnableDisableTextBox(chkBox, ind) {
+        let unitsBox = document.getElementById(`itemUnits-${ind}`);
+        unitsBox.disabled = !chkBox.checked;
+        if (!unitsBox.disabled) {
+            unitsBox.focus();
+        }
+    }
+</script>
+
+<!--Footer-->
+<span th:insert="fragments/footer.html"> </span>
