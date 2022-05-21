@@ -180,12 +180,35 @@ class ItemService(
         val deletePalletsWare = mutableSetOf<ObjectId>()
         val updatePalletsWare = mutableMapOf<ObjectId, Int>()
         items.forEach {
-            val (delPal, updPal) = it.shipItem(shippedItems[it.itemNo] ?: 0, tempShipment)
+            val (delPal, updPal) = it.shipItem(shippedItems[it.itemNo]!!, tempShipment)
             // append to the sets and update warehouse later to optimize process
             deletePalletsWare += delPal
             updatePalletsWare += updPal
         }
         warehouseService.shipItemsWarehouse(tempShipment.from, deletePalletsWare, updatePalletsWare)
         itemRepository.saveAll(items)
+    }
+
+    fun getItemsInReceivingForWarehouse(wareNo: Long): List<ReceivingVM> {
+        val receivingMap: MutableMap<ObjectId, ReceivingVM> = mutableMapOf()
+        val items = itemRepository.findAll()
+        for (it in items) {
+            for (p in it.pallets) {
+                if (p.isPalletInShipping() && p.shipment != null && p.shipment!!.to == wareNo) {
+                    val shipment = p.shipment!!
+                    if (!receivingMap.containsKey(shipment.id)) {
+                        receivingMap[shipment.id] = ReceivingVM(shipment.id, shipment.from, shipment.to)
+                    }
+                    val shipFromMap = receivingMap[shipment.id]!!
+                    if (shipFromMap.items.isEmpty() || shipFromMap.items.last().itemNo != it.itemNo) {
+                        val itemVm = ItemVM(it.itemNo, it.name, it.description, it.department, wareNo, 0)
+                        shipFromMap.items.add(itemVm)
+                    }
+                    shipFromMap.items.last().units += p.units
+                }
+            }
+        }
+
+        return receivingMap.values.toList()
     }
 }

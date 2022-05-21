@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.client.HttpClientErrorException.BadRequest
 import javax.validation.Valid
 
 /**
@@ -429,6 +428,22 @@ class WebController(
             return "shipItem"
         }
 
+    }
+
+    /**
+     * Send a shipment
+     */
+    @GetMapping("/warehouse/receive/{wareNo}")
+    fun getReceiveShipment(@PathVariable wareNo: Long, model: Model): String {
+        val wares = warehouseService.getAllWarehouses()
+        val ware = wares.find { it.wareNo == wareNo }
+            ?: return "redirect:/" // Todo: Toasts
+        val receiving = itemService.getItemsInReceivingForWarehouse(wareNo)
+        println(receiving)
+        val receive = ReceivingRequestVM("")
+
+        Util.addModelAttributesReceiveItem(model, ware.name, wares, receive, receiving)
+        return "receiveItem"
     }
 
 }

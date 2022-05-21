@@ -56,5 +56,18 @@ class Util {
             model.addAttribute("wareSelected", wareSelected)
             model.addAttribute("itemsExist", itemsExist)
         }
+
+        /**
+         * Add model attributes for receiving items in warehouse
+         */
+        fun addModelAttributesReceiveItem(
+            model: Model, selectedWareName: String, wares: List<Warehouse>,
+            receive: ReceivingRequestVM, receiving: List<ReceivingVM>,
+            isWareSelected: Boolean = true) {
+            addModelAttributesNavbar(model, selectedWareName, wares)
+            model.addAttribute("receive", receive)
+            model.addAttribute("receiving", receiving)
+            model.addAttribute("isWareSelected", isWareSelected)
+        }
     }
 }

@@ -1,4 +1,4 @@
-<!--Model Attributes: wareSelected, itemsExist, toWares, -->
+<!--Model Attributes: wareExist, receive, receiving  -->
 
 <!--Headers-->
 <header th:insert="fragments/header.html"> </header>
@@ -9,6 +9,46 @@
 <div class="container-fluid mx-auto px-5 py-4">
     <h1>Receive Shipment: <span> Warehouse Name</span></h1> <!--TODO: add name-->
 
+    <form th:object="${receive}" th:action="@{/warehouse/receive}" method="post"
+          class="row g-3">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" style="width: 15%">Accept</th>
+                <th scope="col" style="width: 70%">Shipment</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="recItem, itemStat : ${receiving}">
+                <td>
+                    <input type="checkbox" class="form-check-input" value="false"
+                           th:id="@{|shipSelected-${itemStat.count}|}">
+                </td>
+                <td>
+                    <span>
+                      <a style="text-decoration: none;" data-bs-toggle="collapse"
+                         role="button" aria-expanded="false" aria-controls="collapseExample"
+                         th:href="@{|#shipBlock-${itemStat.count}|}">
+                        <i class="fa-solid fa-chevron-down"></i>
+                      </a>
+                      <span class="mx-3" th:text="${recItem.getDisplayStr()}"></span>
+                    </span>
+
+                    <div class="collapse" th:id="@{|shipBlock-${itemStat.count}|}">
+                        <div class="ms-4 ps-5">
+                            <div th:each="it, itemStat : ${recItem.items}" th:text="${it.getDisplayStr()}"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </div>
+
+    </form>
 
 
 </div>

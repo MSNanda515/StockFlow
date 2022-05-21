@@ -173,6 +173,10 @@ class ItemVM(
     fun getDisplayStr(): String {
         return "Item No: $itemNo, Name: $name, Desc: $description, Dep: $department, Units: $units"
     }
+
+    override fun toString(): String {
+        return getDisplayStr()
+    }
 }
 
 /**
