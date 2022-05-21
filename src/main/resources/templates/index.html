@@ -32,6 +32,8 @@
                 Send Shipment
             </button>
             <ul class="dropdown-menu" aria-labelledby="shipmentWarehouseSelect">
+                <li class="fst-italic dropdown-item disabled">From</li>
+                <li><hr class="dropdown-divider"></li>
                 <li th:each="ware: ${wares}">
                     <a class="dropdown-item" href="#" th:text="${ware.name}"
                        th:href="@{/warehouse/shipment/{id}(id=${ware.wareNo})}">
@@ -61,10 +63,6 @@
         <span th:text="${selectedWare.getDisplayStr()}"></span>
     </div>
 
-    <div th:if="${isWareSelected}">
-        <!--todo: add warehouse info-->
-        <span></span>
-    </div>
     <div class="accordion" id="accordionItems">
 
         <!--Accordion items-->

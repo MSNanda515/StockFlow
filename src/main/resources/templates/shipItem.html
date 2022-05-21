@@ -121,11 +121,11 @@
         submitButton.click()
     }
 
-    function EnableDisableTextBox(chkPassport, ind) {
-        var txtPassportNumber = document.getElementById(`itemUnits-${ind}`);
-        txtPassportNumber.disabled = !chkPassport.checked;
-        if (!txtPassportNumber.disabled) {
-            txtPassportNumber.focus();
+    function EnableDisableTextBox(chkBox, ind) {
+        let unitsBox = document.getElementById(`itemUnits-${ind}`);
+        unitsBox.disabled = !chkBox.checked;
+        if (!unitsBox.disabled) {
+            unitsBox.focus();
         }
     }
 </script>
