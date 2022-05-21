@@ -4,6 +4,7 @@ import com.msnanda515.stockflow.exception.*
 import com.msnanda515.stockflow.model.*
 import com.msnanda515.stockflow.repository.ItemRepository
 import com.msnanda515.stockflow.repository.WarehouseRepository
+import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 
 @Service
@@ -20,15 +21,15 @@ class ItemService(
     }
 
     /**
-     * Active items, assumes that all pallets in the warehouse are for active items
+     * Gets the active items present in the warehouse
+     * Note: Does not include those which are in receiving
      */
     fun getActiveItemsInWarehouse(wareNo: Long): List<Item> {
-        // TODO: needs to change if items in shipping
         val items = getAllActiveItems()
         val resItems: MutableList<Item> = mutableListOf()
         // filter those items which have units in the warehouse
         for (item in items) {
-            var palletsInWare = item.pallets.filter { it.palletLoc.wareNo == wareNo }
+            var palletsInWare = item.pallets.filter { it.palletLoc.wareNo == wareNo && !it.isPalletInShipping() }
             if (palletsInWare.isNotEmpty()) {
                 item.pallets = palletsInWare as MutableList<Pallet>
                 resItems.add(item)
@@ -159,7 +160,32 @@ class ItemService(
         itemRepository.save(item)
     }
 
-    fun shipItems(shipmentVM: ShipmentVM) {
-//        val shippedItemNos = shipmentVM.
+    /**
+     * @throws InvalidRequestException if the no of item units does not match with the ids
+     */
+    fun shipItems(shipmentVm: ShipmentVM) {
+        // get the items ids and units
+        val shippedItems: Map<Long, Int>
+        val shippedItemIds = shipmentVm.itemNos.split(",").map { it.toLong() }
+        val shippedItemUnits = shipmentVm.itemUnits.split(",").map { it.toInt() }
+        if (shippedItemIds.size != shippedItemUnits.size) {
+            throw InvalidRequestException("Requested item units (${shippedItemUnits.size}) and " +
+                    "ids (${shippedItemIds.size}) does not match")
+        }
+        shippedItems = shippedItemIds.zip(shippedItemUnits).toMap()
+
+        var items = getActiveItemsInWarehouse(shipmentVm.from)
+        items = items.filter { shippedItems.containsKey(it.itemNo) }
+        val tempShipment = Shipment(from = shipmentVm.from, to = shipmentVm.to, units = 0)
+        val deletePalletsWare = mutableSetOf<ObjectId>()
+        val updatePalletsWare = mutableMapOf<ObjectId, Int>()
+        items.forEach {
+            val (delPal, updPal) = it.shipItem(shippedItems[it.itemNo] ?: 0, tempShipment)
+            // append to the sets and update warehouse later to optimize process
+            deletePalletsWare += delPal
+            updatePalletsWare += updPal
+        }
+        warehouseService.shipItemsWarehouse(tempShipment.from, deletePalletsWare, updatePalletsWare)
+        itemRepository.saveAll(items)
     }
 }

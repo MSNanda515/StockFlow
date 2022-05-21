@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.client.HttpClientErrorException.BadRequest
 import javax.validation.Valid
 
 /**
@@ -380,6 +381,7 @@ class WebController(
             return "shipItem"
         }
 
+
         val otherWares = wares.filter { it.wareNo != wareNo }
         val shipment = ShipmentVM(wareNo, otherWares[0].wareNo)
         Util.addModelAttributesShipItems(model, ware.name, wares, otherWares, shipment, items, true,
@@ -394,13 +396,35 @@ class WebController(
     fun postSendShipment(@Valid @ModelAttribute("shipment") shipmentVM: ShipmentVM,
                           bindingResult: BindingResult, model: Model): String {
         fun setCustFailModel() {
+            val wareNo = shipmentVM.from
+            val wares = warehouseService.getAllWarehouses()
+            val ware = wares.find {it.wareNo == wareNo} ?: throw InvalidRequestException("Warehouse does not exist")
+            val items = itemService.getActiveItemsInWarehouse(wareNo)
+                .map { ItemVM.prepareVMForWarehouse(it, wareNo) }
+            // todo: set units according to previous value
+            val otherWares = wares.filter { it.wareNo != wareNo }
+            val shipment = ShipmentVM(wareNo, otherWares[0].wareNo)
+            Util.addModelAttributesShipItems(model, ware.name, wares, otherWares, shipment, items, true,
+                items.isNotEmpty())
         }
+
         if (bindingResult.hasErrors()) {
             // Prepare the context for model and show the errors UI
             setCustFailModel()
             return "shipItem"
         }
-        return "redirect:/"
+
+        try {
+            itemService.shipItems(shipmentVM)
+            return "redirect:/warehouse/${shipmentVM.from}"
+        } catch(exp: InvalidRequestException) {
+            bindingResult.addError(FieldError("shipment", "itemNos",
+                exp.message ?: "Something went wrong")
+            )
+            setCustFailModel()
+            return "shipItem"
+        }
+
     }
 
 }

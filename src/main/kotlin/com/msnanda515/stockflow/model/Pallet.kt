@@ -36,10 +36,10 @@ data class Pallet(
 
     /**
      * Returns true if item is in shipment
-     * Item in shipment when aisle == -1
+     * Item in shipment when status set to PalletStatus.Tran
      */
     fun isPalletInShipping(): Boolean {
-        return palletLoc.aisle < 0
+        return status == PalletStatus.TRAN
     }
 
     companion object {

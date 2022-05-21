@@ -12,19 +12,27 @@
 
     <form th:object="${shipment}" th:action="@{/warehouse/shipment}" method="post"
           class="row g-3" th:if="${wareSelected && itemsExist}">
-        <fieldset>
         <div class="mb-3 col-md-6">
             <label for="fromWare" class="form-label">From Warehouse</label>
             <input id="fromWare" type="text" class="form-control" th:field="*{from}" readonly />
         </div>
 
         <div class="mb-3 col-md-6">
-            <label for="toWare" class="form-label">To Warehouse</label>
+            <label for="toWare" class="form-label">To</label>
             <select id="toWare" class="form-select" th:field="*{to}" name="to">
+                <!--Customer-->
+                <option value="0"> <!--Todo: can optimize this-->
+                    <span>Customer</span>
+                </option>
                 <option th:each="it : ${toWares}" th:value="${it.wareNo}"> <!--Todo: can optimize this-->
                     <span th:text="${it.toString()}"></span>
                 </option>
             </select>
+        </div>
+
+        <div class="my-2">
+            <span th:if="${#fields.hasErrors('itemNos')}" th:errors="*{itemNos}" class="text-danger">error</span>
+            <span th:if="${#fields.hasErrors('itemUnits')}" th:errors="*{itemUnits}" class="text-danger">error</span>
         </div>
 
         <input type="hidden" class="form-control" th:field="*{itemNos}" id="shipmentItemNos">
@@ -49,7 +57,7 @@
                 <td><span th:text="${shipItem.getDisplayStr()}"></span></td>
                 <td>
                     <input type="number" class="form-control"
-                           th:value="${shipItem.units}"
+                           value="0"
                            th:id="@{|itemUnits-${itemStat.count}|}" style="width: 6rem" >
                 </td>
                 <span style="display: none" th:id="@{|itemNo-${itemStat.count}|}" th:text="${shipItem.itemNo}"></span>
@@ -61,7 +69,6 @@
         <div class="col-12" style="display: none">
             <button id="formSubmit" type="submit" class="btn btn-primary mt-3">Submit</button>
         </div>
-        </fieldset>
     </form>
 
     <div class="col-12">
@@ -83,11 +90,15 @@
         for (let i = 1; i <= numItems; i++) {
             let isItemSelected = document.getElementById(`itemSelected-${i}`).checked
             if (isItemSelected) {
-                itemNos.push(document.getElementById(`itemNo-${i}`).innerText)
-                itemUnits.push(document.getElementById(`itemUnits-${i}`).value)
+                let itemNo = document.getElementById(`itemNo-${i}`).innerText
+                let units = document.getElementById(`itemUnits-${i}`).value
+                if (units === "" || units === "0") {
+                    continue
+                }
+                itemNos.push(itemNo)
+                itemUnits.push(units)
             }
         }
-        console.log(itemNos,"\n", itemUnits)
         itemNosEl.value = itemNos.join(",")
         itemUnitsEl.value = itemUnits.join(",")
         submitButton.click()

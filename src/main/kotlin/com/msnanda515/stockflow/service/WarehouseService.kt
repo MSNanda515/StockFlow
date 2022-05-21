@@ -4,6 +4,7 @@ import com.msnanda515.stockflow.exception.*
 import com.msnanda515.stockflow.model.*
 import com.msnanda515.stockflow.repository.ItemRepository
 import com.msnanda515.stockflow.repository.WarehouseRepository
+import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 
 @Service
@@ -114,5 +115,24 @@ class WarehouseService(
             }
         }
         itemRepository.saveAll(items)
+    }
+
+    /**
+     * TODO: Can be made an async job
+     * updates the pallet info in the warehouse
+     * Persists the changes
+     */
+    fun shipItemsWarehouse(wareNo: Long, deletePalletsWare: MutableSet<ObjectId>,
+                           updatePalletMap: MutableMap<ObjectId, Int>) {
+        val ware = warehouseRepository.findByWareNo(wareNo)[0]
+        // delete the ones that have been shipped
+        ware.pallets = ware.pallets.filter { deletePalletsWare.contains(it.id) } as MutableList<Pallet>
+        // update the ones that need updating
+        ware.pallets.forEach {
+            if (updatePalletMap.containsKey(it.id)) {
+                it.units = updatePalletMap[it.id]!!
+            }
+        }
+        warehouseRepository.save(ware)
     }
 }

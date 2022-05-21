@@ -1,6 +1,7 @@
 package com.msnanda515.stockflow.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.msnanda515.stockflow.exception.InvalidRequestException
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
@@ -37,6 +38,67 @@ data class Item(
     fun getDisplayStr(): String {
         return "$itemNo (Name: $name, Department: ${department.disp}, Pallet Cap: ${department.palleteCap})"
     }
+
+    /**
+     * Ships pallets from one warehouse to another
+     */
+    fun shipItem(units: Int, tempShipment: Shipment): Pair<MutableSet<ObjectId>, MutableMap<ObjectId, Int>> {
+        if (getUnitsInWare(tempShipment.from) < units) {
+            throw InvalidRequestException("Not enough units in warehouse")
+        }
+        val shipment = Shipment(tempShipment.from, tempShipment.to, units, tempShipment.id)
+        val deletePalletsWare = mutableSetOf<ObjectId>() // to delete the pallet from the warehouse collection
+        val palletsUpdated = mutableMapOf<ObjectId, Int>() // to update the pallet in the warehouse collection
+        val palletsAdded = mutableListOf<Pallet>() // to add the new pallets to the list of pallets
+        var itemsAlloc = 0
+
+        for (i in 0 until pallets.size) {
+            val it = pallets[i]
+            if (it.palletLoc.wareNo == shipment.from && !it.isPalletInShipping()) {
+                if (itemsAlloc == units) {
+                    // all items allocated
+                    break
+                }
+                if (it.units <= (units-itemsAlloc)) {
+                    shipPallet(it, shipment)
+                    deletePalletsWare.add(it.id)
+                    itemsAlloc += it.units
+                } else {
+                    // units are greater, pallet needs to be partially emptied
+                    // create a new pallet for shipping, update the units on original pallet
+                    val newPalletForShipping = Pallet(itemNo, (units-itemsAlloc),
+                        PalletLoc(shipment.to, -1, 0, 0), shipment, PalletStatus.TRAN)
+                    it.units -= (units-itemsAlloc)
+                    palletsAdded.add(newPalletForShipping)
+                    palletsUpdated[it.id] = it.units
+                    break
+                }
+            }
+        }
+
+        pallets.addAll(palletsAdded)
+        return Pair(deletePalletsWare, palletsUpdated)
+    }
+
+    /**
+     * Ships the given pallet in the mentioned shipment
+     */
+    fun shipPallet(pallet: Pallet, shipment: Shipment) {
+        pallet.status = PalletStatus.TRAN
+        pallet.palletLoc.wareNo = shipment.to
+        pallet.palletLoc.aisle = -1
+        pallet.shipment = shipment
+    }
+
+    /**
+     * Gets the number of units for the item present in the warehouse
+     */
+    fun getUnitsInWare(wareNo: Long): Int {
+        return pallets.fold(0) {sum, p ->
+            if (p.palletLoc.wareNo == wareNo && !p.isPalletInShipping()) (p.units + sum) else sum
+        }
+    }
+
     companion object {
         /**
          * Create an item object from the item view model
