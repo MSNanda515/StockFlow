@@ -469,6 +469,5 @@ class WebController(
             setCustFailModel()
             return "receiveItem"
         }
-        return "redirect:/"
     }
 }

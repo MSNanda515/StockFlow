@@ -1,5 +1,6 @@
 FROM openjdk:18.0.1.1-oraclelinux7
 WORKDIR /app
-EXPOSE 8080
-COPY ./build/libs/*.jar .
-CMD ["java", "-jar", "stockflow-0.0.1-SNAPSHOT.jar"]
+EXPOSE 8080 27017
+ENV SPRING_DATA_MONGODB_URI="mongodb+srv://redcap:devRedcap@cluster0.9pqpb.mongodb.net/stock_flow?retryWrites=true&w=majority"
+COPY ./build/libs/*.jar ./
+CMD java -Dserver.port=8080 -Dspring.data.mongodb.uri=$SPRING_DATA_MONGODB_URI -jar stockflow-0.0.1-SNAPSHOT.jar

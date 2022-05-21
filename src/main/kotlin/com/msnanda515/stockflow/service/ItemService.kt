@@ -218,6 +218,7 @@ class ItemService(
     /**
      * Receives the selected shipments for the user
      * @throws InvalidRequestException if the parameters are not valid
+     * todo: add the shipments to history os shipments for items for record
      */
     fun receiveShipment(shipmentIdsStr: String, wareNo: Long) {
         val shipmentIds = shipmentIdsStr.split(",").toSet()
