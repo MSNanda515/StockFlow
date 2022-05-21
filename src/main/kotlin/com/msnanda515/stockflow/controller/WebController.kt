@@ -439,7 +439,6 @@ class WebController(
         val ware = wares.find { it.wareNo == wareNo }
             ?: return "redirect:/" // Todo: Toasts
         val receiving = itemService.getItemsInReceivingForWarehouse(wareNo)
-        println(receiving)
         val receive = ReceivingRequestVM("")
 
         Util.addModelAttributesReceiveItem(model, ware.name, wares, receive, receiving)

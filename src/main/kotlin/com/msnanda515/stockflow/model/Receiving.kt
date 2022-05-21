@@ -13,7 +13,7 @@ data class ReceivingVM (
 ) {
     fun getDisplayStr(): String {
         val sid = id.toString().takeLast(6)
-        return "Shipment Id: $sid, From: $from, To: $to, Shipped On: " +
+        return "Shipment Id: $sid, From: $from, To: $to, Items: ${items.size}, Shipped On: " +
                 shippedOn.format(DateTimeFormatter.ISO_LOCAL_DATE)
     }
 }

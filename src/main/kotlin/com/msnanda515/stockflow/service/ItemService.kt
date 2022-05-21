@@ -174,7 +174,7 @@ class ItemService(
         }
         shippedItems = shippedItemIds.zip(shippedItemUnits).toMap()
 
-        var items = getActiveItemsInWarehouse(shipmentVm.from)
+        var items = itemRepository.findAll()
         items = items.filter { shippedItems.containsKey(it.itemNo) }
         val tempShipment = Shipment(from = shipmentVm.from, to = shipmentVm.to, units = 0)
         val deletePalletsWare = mutableSetOf<ObjectId>()
