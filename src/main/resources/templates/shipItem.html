@@ -27,7 +27,10 @@
             </select>
         </div>
 
+        <input type="hidden" class="form-control" th:field="*{itemNos}" id="shipmentItemNos">
+        <input type="hidden" class="form-control" th:field="*{itemUnits}" id="shipmentItemUnits">
 
+        <span style="display: none" id="itemRows" th:text="${items.size()}"></span>
         <table class="table">
             <thead>
             <tr>
@@ -38,36 +41,58 @@
             </thead>
 
             <tbody>
-            <tr th:each="shipItem, itemStat : ${shipment.items}">
+            <tr th:each="shipItem, itemStat : ${items}">
                 <td>
                     <input type="checkbox" class="form-check-input"
-                           th:name="|items[${itemStat.index}].itemSelected|"
-                           th:value="${shipItem.itemSelected}" required>
+                           value="false" th:id="@{|itemSelected-${itemStat.count}|}">
                 </td>
-<!--                <td><span th:text="${shipItem.item.getDisplayStr()}"></span></td>-->
+                <td><span th:text="${shipItem.getDisplayStr()}"></span></td>
                 <td>
-                    <input type="number" class="form-control" th:name="|items[${itemStat.index}].units|"
-                           style="width: 6rem" th:value="${shipItem.units}" required>
+                    <input type="number" class="form-control"
+                           th:value="${shipItem.units}"
+                           th:id="@{|itemUnits-${itemStat.count}|}" style="width: 6rem" >
                 </td>
-                <td>
-                    <input type="hidden" class="form-control"
-                           th:name="|items[${itemStat.index}].itemNo|"
-                           th:value="${shipItem.itemNo}" required/>
-                </td>
-
+                <span style="display: none" th:id="@{|itemNo-${itemStat.count}|}" th:text="${shipItem.itemNo}"></span>
             </tr>
 
             </tbody>
         </table>
 
-        <div class="col-12">
-            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        <div class="col-12" style="display: none">
+            <button id="formSubmit" type="submit" class="btn btn-primary mt-3">Submit</button>
         </div>
         </fieldset>
     </form>
 
+    <div class="col-12">
+        <button onclick="submitCreateShipmentForm()" class="btn btn-primary mt-3">Submit</button>
+    </div>
 
 </div>
+
+<script>
+    let submitCreateShipmentForm = function() {
+        // get relevant input tags
+        let submitButton = document.getElementById("formSubmit")
+        let itemNosEl = document.getElementById("shipmentItemNos")
+        let itemUnitsEl = document.getElementById("shipmentItemUnits")
+        let numItems = parseInt(document.getElementById("itemRows").textContent)
+        let itemNos = []
+        let itemUnits = []
+
+        for (let i = 1; i <= numItems; i++) {
+            let isItemSelected = document.getElementById(`itemSelected-${i}`).checked
+            if (isItemSelected) {
+                itemNos.push(document.getElementById(`itemNo-${i}`).innerText)
+                itemUnits.push(document.getElementById(`itemUnits-${i}`).value)
+            }
+        }
+        console.log(itemNos,"\n", itemUnits)
+        itemNosEl.value = itemNos.join(",")
+        itemUnitsEl.value = itemUnits.join(",")
+        submitButton.click()
+    }
+</script>
 
 <!--Footer-->
 <span th:insert="fragments/footer.html"> </span>

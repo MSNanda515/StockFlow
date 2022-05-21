@@ -1,6 +1,7 @@
 package com.msnanda515.stockflow.model
 
 import org.bson.types.ObjectId
+import javax.validation.constraints.Min
 
 data class Shipment(
     val from: Long?,
@@ -9,23 +10,12 @@ data class Shipment(
     val id: ObjectId = ObjectId.get(),
 )
 
-data class ShipmentItemVM(
-    var itemSelected: Boolean,
-    var itemNo: Long,
-    var units: Int,
-) {
-    companion object {
-        /**
-         * Prepares default shipment item view model
-         */
-        fun prepareShipmentVM(itemVm: ItemVM): ShipmentItemVM {
-            return ShipmentItemVM(false, itemVm.itemNo, 0, )
-        }
-    }
-}
 
 data class ShipmentVM(
+    @field:Min(1)
     var from: Long,
+    @field:Min(1)
     var to: Long,
-    var items: List<ShipmentItemVM>,
+    var itemNos: String = "",
+    var itemUnits: String = "",
 )

@@ -381,9 +381,9 @@ class WebController(
         }
 
         val otherWares = wares.filter { it.wareNo != wareNo }
-        val shipment = ShipmentVM(wareNo, otherWares[0].wareNo, items.map { ShipmentItemVM.prepareShipmentVM(it) })
-        Util.addModelAttributesShipItems(model, ware.name, wares, otherWares, shipment, true,
-            shipment.items?.isNotEmpty() ?: false)
+        val shipment = ShipmentVM(wareNo, otherWares[0].wareNo)
+        Util.addModelAttributesShipItems(model, ware.name, wares, otherWares, shipment, items, true,
+            items.isNotEmpty())
         return "shipItem"
     }
 
@@ -395,7 +395,6 @@ class WebController(
                           bindingResult: BindingResult, model: Model): String {
         fun setCustFailModel() {
         }
-        println(shipmentVM)
         if (bindingResult.hasErrors()) {
             // Prepare the context for model and show the errors UI
             setCustFailModel()

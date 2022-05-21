@@ -47,11 +47,12 @@ class Util {
          * Add model attributes required for the ship items page
          */
         fun addModelAttributesShipItems(model: Model, selectedWareName: String, wares: List<Warehouse>,
-                                        toWares: List<Warehouse>, shipment: ShipmentVM,
+                                        toWares: List<Warehouse>, shipment: ShipmentVM, items: List<ItemVM>,
                                         wareSelected: Boolean, itemsExist: Boolean,) {
             addModelAttributesNavbar(model, selectedWareName, wares)
             model.addAttribute("toWares", toWares)
             model.addAttribute("shipment", shipment)
+            model.addAttribute("items", items)
             model.addAttribute("wareSelected", wareSelected)
             model.addAttribute("itemsExist", itemsExist)
         }
