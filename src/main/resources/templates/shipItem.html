@@ -51,14 +51,16 @@
             <tbody>
             <tr th:each="shipItem, itemStat : ${items}">
                 <td>
-                    <input type="checkbox" class="form-check-input"
-                           value="false" th:id="@{|itemSelected-${itemStat.count}|}">
+                    <input type="checkbox" class="form-check-input" value="false"
+                           th:attr="onclick=@{|EnableDisableTextBox(this,${itemStat.count})|}"
+                           onclick="EnableDisableTextBox(this)"
+                           th:id="@{|itemSelected-${itemStat.count}|}">
                 </td>
                 <td><span th:text="${shipItem.getDisplayStr()}"></span></td>
                 <td>
                     <input type="number" class="form-control"
                            value="0"
-                           th:id="@{|itemUnits-${itemStat.count}|}" style="width: 6rem" >
+                           th:id="@{|itemUnits-${itemStat.count}|}" style="width: 6rem" disabled>
                 </td>
                 <span style="display: none" th:id="@{|itemNo-${itemStat.count}|}" th:text="${shipItem.itemNo}"></span>
             </tr>
@@ -71,10 +73,24 @@
         </div>
     </form>
 
-    <div class="col-12">
+    <div class="col-12" th:unless="${#lists.isEmpty(items)}">
         <button onclick="submitCreateShipmentForm()" class="btn btn-primary mt-3">Submit</button>
     </div>
 
+    <div class="col-12" th:if="${#lists.isEmpty(items)}">
+        <div>Warehouse is empty</div>
+        <span th:if="${wareSelected}">
+            <a class="btn btn-primary mt-3"
+                    th:href="@{/items/inventory/create(wareNo=${shipment.from})}">
+                Create Inventory
+            </a>
+        </span>
+        <span th:unless="${wareSelected}">
+            <a class="btn btn-primary mt-3" href="/items/inventory/create">
+                Create Inventory
+            </a>
+        </span>
+    </div>
 </div>
 
 <script>
@@ -103,6 +119,14 @@
         itemNosEl.value = itemNos.join(",")
         itemUnitsEl.value = itemUnits.join(",")
         submitButton.click()
+    }
+
+    function EnableDisableTextBox(chkPassport, ind) {
+        var txtPassportNumber = document.getElementById(`itemUnits-${ind}`);
+        txtPassportNumber.disabled = !chkPassport.checked;
+        if (!txtPassportNumber.disabled) {
+            txtPassportNumber.focus();
+        }
     }
 </script>
 

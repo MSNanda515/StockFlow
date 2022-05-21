@@ -415,9 +415,13 @@ class WebController(
         }
 
         try {
-            itemService.shipItems(shipmentVM)
+            if (shipmentVM.itemNos != "")
+                itemService.shipItems(shipmentVM)
             return "redirect:/warehouse/${shipmentVM.from}"
-        } catch(exp: InvalidRequestException) {
+        } catch(exp: Exception) {
+            if (exp !is java.lang.NumberFormatException && exp !is InvalidRequestException)
+                throw exp
+
             bindingResult.addError(FieldError("shipment", "itemNos",
                 exp.message ?: "Something went wrong")
             )
