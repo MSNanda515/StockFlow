@@ -92,7 +92,8 @@
             if (isItemSelected) {
                 let itemNo = document.getElementById(`itemNo-${i}`).innerText
                 let units = document.getElementById(`itemUnits-${i}`).value
-                if (units === "" || units === "0") {
+                let parsedUnits = parseInt(units)
+                if (isNaN(parsedUnits) || parsedUnits <= 0) {
                     continue
                 }
                 itemNos.push(itemNo)
