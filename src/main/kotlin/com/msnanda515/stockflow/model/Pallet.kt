@@ -34,6 +34,14 @@ data class Pallet(
                 "Section: ${palletLoc.section}, Level: ${palletLoc.level}, Units: ${units}"
     }
 
+    /**
+     * Returns true if item is in shipment
+     * Item in shipment when aisle == -1
+     */
+    fun isPalletInShipping(): Boolean {
+        return palletLoc.aisle < 0
+    }
+
     companion object {
         /**
          * Creates the pallets for an item

@@ -372,7 +372,7 @@ class WebController(
         val ware = wares.find { it.wareNo == wareNo }
             ?: return "redirect:/" // Todo: Toasts
         val items = itemService.getActiveItemsInWarehouse(wareNo)
-            .map { ItemVM.prepareVM(it) }
+            .map { ItemVM.prepareVMForWarehouse(it, wareNo) }
 
         if (wares.size < 2) {
             // cannot ship an item to itself
@@ -383,7 +383,25 @@ class WebController(
         val otherWares = wares.filter { it.wareNo != wareNo }
         val shipment = ShipmentVM(wareNo, otherWares[0].wareNo, items.map { ShipmentItemVM.prepareShipmentVM(it) })
         Util.addModelAttributesShipItems(model, ware.name, wares, otherWares, shipment, true,
-            shipment.items.isNotEmpty())
+            shipment.items?.isNotEmpty() ?: false)
         return "shipItem"
     }
+
+    /**
+     * Post mapping for send shipment endpoint
+     */
+    @PostMapping("/warehouse/shipment")
+    fun postSendShipment(@Valid @ModelAttribute("shipment") shipmentVM: ShipmentVM,
+                          bindingResult: BindingResult, model: Model): String {
+        fun setCustFailModel() {
+        }
+        println(shipmentVM)
+        if (bindingResult.hasErrors()) {
+            // Prepare the context for model and show the errors UI
+            setCustFailModel()
+            return "shipItem"
+        }
+        return "redirect:/"
+    }
+
 }

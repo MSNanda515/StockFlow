@@ -10,23 +10,22 @@ data class Shipment(
 )
 
 data class ShipmentItemVM(
-    val itemSelected: Boolean,
-    val itemNo: Long,
-    val item: ItemVM?,
-    val units: Int,
+    var itemSelected: Boolean,
+    var itemNo: Long,
+    var units: Int,
 ) {
     companion object {
         /**
          * Prepares default shipment item view model
          */
         fun prepareShipmentVM(itemVm: ItemVM): ShipmentItemVM {
-            return ShipmentItemVM(false, itemVm.itemNo, itemVm, 0)
+            return ShipmentItemVM(false, itemVm.itemNo, 0, )
         }
     }
 }
 
 data class ShipmentVM(
-    val from: Long,
-    val to: Long,
-    val items: List<ShipmentItemVM>,
+    var from: Long,
+    var to: Long,
+    var items: List<ShipmentItemVM>,
 )

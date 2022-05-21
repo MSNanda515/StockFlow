@@ -75,18 +75,35 @@ class ItemVM(
             )
         }
 
-        /**
-         * Prepares the view model from the Item object
-         */
-        fun prepareVM(item: Item): ItemVM {
-            var itemVm = ItemVM(
+        fun initItemVm(item: Item): ItemVM {
+            return ItemVM(
                 itemNo = item.itemNo,
                 name = item.name,
                 description = item.description,
                 department = item.department,
                 pallets = item.pallets
             )
+        }
+
+        /**
+         * Prepares the view model from the Item object
+         */
+        fun prepareVM(item: Item): ItemVM {
+            val itemVm = initItemVm(item)
             itemVm.units = item.pallets.fold(0) {sum, p -> sum + p.units}
+            return itemVm
+        }
+
+        /**
+         * Prepares the view model from the item object taking the warehouse number into account
+         * @return ItemVM prepared view model for the item
+         */
+        fun prepareVMForWarehouse(item: Item, wareNo: Long): ItemVM {
+            val itemVm = initItemVm(item)
+            // Find the number of units in the warehouse
+            itemVm.units = item.pallets.fold(0) {sum, p ->
+                if (p.palletLoc.wareNo == wareNo && !p.isPalletInShipping()) sum + p.units else sum
+            }
             return itemVm
         }
     }

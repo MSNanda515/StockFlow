@@ -23,6 +23,7 @@ class ItemService(
      * Active items, assumes that all pallets in the warehouse are for active items
      */
     fun getActiveItemsInWarehouse(wareNo: Long): List<Item> {
+        // TODO: needs to change if items in shipping
         val items = getAllActiveItems()
         val resItems: MutableList<Item> = mutableListOf()
         // filter those items which have units in the warehouse
@@ -156,5 +157,9 @@ class ItemService(
         // set the item status to inactive
         item.status = ItemStatus.INACTIVE
         itemRepository.save(item)
+    }
+
+    fun shipItems(shipmentVM: ShipmentVM) {
+//        val shippedItemNos = shipmentVM.
     }
 }

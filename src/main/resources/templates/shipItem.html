@@ -10,9 +10,9 @@
     <h1>Ship Items</h1>
 
 
-    <form th:object="${shipment}" th:action="@{/items/ship}" method="post"
+    <form th:object="${shipment}" th:action="@{/warehouse/shipment}" method="post"
           class="row g-3" th:if="${wareSelected && itemsExist}">
-
+        <fieldset>
         <div class="mb-3 col-md-6">
             <label for="fromWare" class="form-label">From Warehouse</label>
             <input id="fromWare" type="text" class="form-control" th:field="*{from}" readonly />
@@ -38,32 +38,32 @@
             </thead>
 
             <tbody>
-            <tr th:each="shipItem, itemStat : *{items}">
-                <th scope="row">
-                    <input type="checkbox" class="form-check-input"
-                           th:field="*{items[__${itemStat.index}__].itemSelected}">
-                </th>
-                <td><span th:text="${shipItem.item.getDisplayStr()}"></span></td>
+            <tr th:each="shipItem, itemStat : ${shipment.items}">
                 <td>
-                    <input type="number" class="form-control"
-                           style="width: 6rem" th:field="*{items[__${itemStat.index}__].units}">
+                    <input type="checkbox" class="form-check-input"
+                           th:name="|items[${itemStat.index}].itemSelected|"
+                           th:value="${shipItem.itemSelected}" required>
                 </td>
-                <input type="hidden" class="form-control" th:field="*{items[__${itemStat.index}__].itemNo}" readonly />
+<!--                <td><span th:text="${shipItem.item.getDisplayStr()}"></span></td>-->
+                <td>
+                    <input type="number" class="form-control" th:name="|items[${itemStat.index}].units|"
+                           style="width: 6rem" th:value="${shipItem.units}" required>
+                </td>
+                <td>
+                    <input type="hidden" class="form-control"
+                           th:name="|items[${itemStat.index}].itemNo|"
+                           th:value="${shipItem.itemNo}" required/>
+                </td>
 
-<!--                <td><input th:field="*{items[__${itemStat.index}__].itemSelected}" /></td>-->
-<!--                <td><input type="checkbox"  /></td>-->
             </tr>
 
-            <tr th:each="shipItem, stat : *{items}">
-
-            </tr>
             </tbody>
         </table>
 
         <div class="col-12">
             <button type="submit" class="btn btn-primary mt-3">Submit</button>
         </div>
-
+        </fieldset>
     </form>
 
 
