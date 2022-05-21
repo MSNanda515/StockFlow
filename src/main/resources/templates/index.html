@@ -17,8 +17,38 @@
            data-toggle="tooltip" data-placement="top" title="Create Item">Add Item</a>
         <a href="/items/inventory/create" type="button" class="btn btn-primary mx-2"
            data-toggle="tooltip" data-placement="top" title="Create Inventory">Add Inventory</a>
+
         <button type="button" class="btn btn-primary mx-2">Receive Shipment</button>
-        <button type="button" class="btn btn-primary mx-2">Send Shipment</button>
+
+        <span th:if="${isWareSelected}">
+<!--            <a class="btn btn-primary mx-2" th:href="@{/warehouse/shipment/{id}(id=${selectedWare.wareNo})}">-->
+<!--                Send Shipment-->
+<!--            </a>-->
+        </span>
+        <!--If warehouse not selected show option to select warehouse-->
+        <div class="dropdown" th:unless="${isWareSelected}">
+            <button class="btn btn-primary mx-2 dropdown-toggle" type="button" id="shipmentWarehouseSelect"
+                  data-bs-toggle="dropdown" aria-expanded="false">
+                Send Shipment
+            </button>
+<!--            <ul class="dropdown-menu" aria-labelledby="shipmentWarehouseSelect">-->
+<!--                <li th:each="ware: ${wares}">-->
+<!--                    <a class="dropdown-item" href="#" th:text="${ware.name}"-->
+<!--                       th:href="@{/warehouse/shipment/{id}(id=${ware.wareNo})}">-->
+<!--                        Warehouse-->
+<!--                    </a>-->
+<!--                </li>-->
+
+<!--                <li th:if="${#lists.isEmpty(wares)}">-->
+<!--                    <a href="/warehouse/create" type="button" class="btn btn-primary mx-2"-->
+<!--                       data-toggle="tooltip" data-placement="top" title="Create Warehouse">Add Warehouse</a>-->
+<!--                </li>-->
+<!--            </ul>-->
+        </div>
+
+        <a class="btn btn-primary mx-2" th:href="@{/warehouse/shipment/{id}(id=${selectedWare.wareNo})}">
+            Send Shipment
+        </a>
     </div>
 
     <!--Items-->
