@@ -18,7 +18,11 @@
         <a href="/items/inventory/create" type="button" class="btn btn-primary mx-2"
            data-toggle="tooltip" data-placement="top" title="Create Inventory">Add Inventory</a>
 
-        <a type="button" href="/warehouse/receive/1" class="btn btn-primary mx-2">Receive Shipment</a>
+        <span th:if="${isWareSelected}">
+            <a class="btn btn-primary mx-2" th:href="@{/warehouse/receive/{id}(id=${selectedWare.wareNo})}">
+                Receive Shipment
+            </a>
+        </span>
 
         <span th:if="${isWareSelected}">
             <a class="btn btn-primary mx-2" th:href="@{/warehouse/shipment/{id}(id=${selectedWare.wareNo})}">
