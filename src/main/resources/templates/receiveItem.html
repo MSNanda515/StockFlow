@@ -7,14 +7,18 @@
 
 <!--Content-->
 <div class="container-fluid mx-auto px-5 py-4">
-    <h1>Receive Shipment: <span> Warehouse Name</span></h1> <!--TODO: add name-->
+    <h1>Receive Shipment: <span th:text="${selectedWareName}"></span></h1> <!--TODO: add name-->
 
     <form th:object="${receive}" th:action="@{/warehouse/receive}" method="post"
           class="row g-3">
 
         <input type="hidden" th:field="*{shipmentIds}" id="shipmentIds">
+        <input type="hidden" th:field="*{at}" id="curWareNo">
 
         <span style="display: none" id="shipRows" th:text="${receiving.size()}"></span>
+
+        <span th:if="${#fields.hasErrors('shipmentIds')}" th:errors="*{shipmentIds}" class="text-danger">error</span>
+
         <table class="table">
             <thead>
             <tr>

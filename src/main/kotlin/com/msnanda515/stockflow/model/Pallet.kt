@@ -42,6 +42,14 @@ data class Pallet(
         return status == PalletStatus.TRAN
     }
 
+    fun receivePallet(newPalletLoc: PalletLoc) {
+        if (isPalletInShipping()) {
+            status = PalletStatus.STAT
+            palletLoc = newPalletLoc
+            shipment = null
+        }
+    }
+
     companion object {
         /**
          * Creates the pallets for an item

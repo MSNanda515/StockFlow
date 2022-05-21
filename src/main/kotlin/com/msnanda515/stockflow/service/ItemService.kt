@@ -189,9 +189,12 @@ class ItemService(
         itemRepository.saveAll(items)
     }
 
+    /**
+     * Gets the items for a warehouse in shipping
+     */
     fun getItemsInReceivingForWarehouse(wareNo: Long): List<ReceivingVM> {
         val receivingMap: MutableMap<ObjectId, ReceivingVM> = mutableMapOf()
-        val items = itemRepository.findAll()
+        val items = itemRepository.findAllByStatus(ItemStatus.ACTIVE)
         for (it in items) {
             for (p in it.pallets) {
                 if (p.isPalletInShipping() && p.shipment != null && p.shipment!!.to == wareNo) {
@@ -210,5 +213,42 @@ class ItemService(
         }
 
         return receivingMap.values.toList()
+    }
+
+    /**
+     * Receives the selected shipments for the user
+     * @throws InvalidRequestException if the parameters are not valid
+     */
+    fun receiveShipment(shipmentIdsStr: String, wareNo: Long) {
+        val shipmentIds = shipmentIdsStr.split(",").toSet()
+        val palletsShipped = mutableListOf<Pallet>()
+        val items = itemRepository.findAllByStatus(ItemStatus.ACTIVE)
+        // find all pallets which are shipped
+        for (it in items) {
+            for (p in it.pallets) {
+                if (p.isPalletInShipping() && p.shipment != null && shipmentIds.contains(p.shipment!!.id.toString())){
+                    if (p.shipment!!.to != wareNo) {
+                        throw InvalidRequestException("The shipment no does not match with the records")
+                    }
+                    palletsShipped.add(p)
+                }
+            }
+        }
+
+        val wares = warehouseRepository.findByWareNo(wareNo)
+        if (wares.isEmpty()) {
+            throw InvalidRequestException("The requested warehouse does not exist")
+        }
+        val ware = wares[0]
+        // assign the received pallets to valid positions in warehouse
+        val palletLocs = ware.getAvailablePalletPos(palletsShipped.size)
+        for (i in palletsShipped.indices) {
+            palletsShipped[i].receivePallet(palletLocs[i])
+        }
+
+        // add the pallets to the warehouse
+        ware.addNewPallets(palletsShipped)
+        warehouseRepository.save(ware)
+        itemRepository.saveAll(items)
     }
 }

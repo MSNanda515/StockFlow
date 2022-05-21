@@ -19,5 +19,6 @@ data class ReceivingVM (
 }
 
 data class ReceivingRequestVM (
-    val shipmentIds: String
+    val shipmentIds: String,
+    val at: Long,
 )

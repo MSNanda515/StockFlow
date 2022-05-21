@@ -114,6 +114,13 @@ data class Warehouse(
         println("got pos")
         println("Pallets reassigned")
     }
+
+    /**
+     * Adds the given pallets to the warehouse
+     */
+    fun addNewPallets(pallets: MutableList<Pallet>) {
+        this.pallets.addAll(pallets)
+    }
 }
 
 class WarehouseVM(

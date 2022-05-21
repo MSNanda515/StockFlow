@@ -439,10 +439,36 @@ class WebController(
         val ware = wares.find { it.wareNo == wareNo }
             ?: return "redirect:/" // Todo: Toasts
         val receiving = itemService.getItemsInReceivingForWarehouse(wareNo)
-        val receive = ReceivingRequestVM("")
+        val receive = ReceivingRequestVM("", wareNo)
 
         Util.addModelAttributesReceiveItem(model, ware.name, wares, receive, receiving)
         return "receiveItem"
     }
 
+    @PostMapping("/warehouse/receive")
+    fun postReceiveShipment(@Valid @ModelAttribute("receive") receivingRequest: ReceivingRequestVM,
+                         bindingResult: BindingResult, model: Model): String {
+        fun setCustFailModel() {
+            getReceiveShipment(receivingRequest.at, model)
+        }
+
+        if (bindingResult.hasErrors()) {
+            // Prepare the context for model and show the errors UI
+            setCustFailModel()
+            return "receiveItem"
+        }
+
+        try {
+            if (receivingRequest.shipmentIds != "")
+                itemService.receiveShipment(receivingRequest.shipmentIds, receivingRequest.at)
+            return "redirect:/warehouse/${receivingRequest.at}"
+        } catch (exp: InvalidRequestException) {
+            bindingResult.addError(FieldError("receive", "shipmentIds",
+                exp.message ?: "Something went wrong")
+            )
+            setCustFailModel()
+            return "receiveItem"
+        }
+        return "redirect:/"
+    }
 }
