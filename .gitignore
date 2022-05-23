@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 
 **/secrets.properties
+**/.DS_Store
 
 ### STS ###
 .apt_generated
