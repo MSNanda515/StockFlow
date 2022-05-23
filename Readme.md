@@ -2,7 +2,7 @@
 Track the flow of your goods using this Inventory tracking web application.
 
 This project uses a CI/CD pipeline to test and deploy the project on heroku and can be accessed 
-[here](https://dashboard.heroku.com/apps/stock-flow-msn)
+[here](https://stock-flow-msn.herokuapp.com)
 
 ## Inspiration
 
