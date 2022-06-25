@@ -134,7 +134,13 @@ class ItemVM(
     var units: Int = 0,
     var pallets: MutableList<Pallet> = mutableListOf()
 ) {
+    /**
+     * Used as static functions
+     */
     companion object {
+        /**
+         * Creates an empty ItemVM
+         */
         fun createItem(): ItemVM {
             return ItemVM(
                 itemNo = 1,
@@ -144,6 +150,9 @@ class ItemVM(
             )
         }
 
+        /**
+         * Prepares an itemVM from item object without the units
+         */
         fun initItemVm(item: Item): ItemVM {
             return ItemVM(
                 itemNo = item.itemNo,
@@ -155,7 +164,7 @@ class ItemVM(
         }
 
         /**
-         * Prepares the view model from the Item object
+         * Prepares the view model from the Item object with the correct units
          */
         fun prepareVM(item: Item): ItemVM {
             val itemVm = initItemVm(item)
@@ -177,10 +186,16 @@ class ItemVM(
         }
     }
 
+    /**
+     * Gets the display description for object for UI
+     */
     fun getDisplayStr(): String {
         return "Item No: $itemNo, Name: $name, Desc: $description, Dep: $department, Units: $units"
     }
 
+    /**
+     * Prepares string representation for object
+     */
     override fun toString(): String {
         return getDisplayStr()
     }
@@ -207,8 +222,7 @@ enum class ItemStatus(disp: String) {
 }
 
 /**
- * Represents the departments to group
- * items
+ * Represents the departments to group items
  */
 enum class Department(val disp: String, val palleteCap: Int) {
     @JsonProperty("grocery") GRCY("Grocery", 50), // Grocery

@@ -11,6 +11,9 @@ data class ReceivingVM (
     val items: MutableList<ItemVM> = mutableListOf(),
     val shippedOn: LocalDateTime = LocalDateTime.now()  // TODO: Add support for correct date time
 ) {
+    /**
+     * gets the string describing the receiving object for UI
+     */
     fun getDisplayStr(): String {
         val sid = id.toString().takeLast(6)
         return "Shipment Id: $sid, From: $from, To: $to, Items: ${items.size}, Shipped On: " +

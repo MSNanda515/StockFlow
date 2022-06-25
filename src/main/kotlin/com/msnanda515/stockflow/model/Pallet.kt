@@ -24,10 +24,16 @@ data class Pallet(
     var createdDate: LocalDateTime = LocalDateTime.now(),
     var modifiedDate: LocalDateTime = LocalDateTime.now()
 ): Comparable<Pallet> {
+    /**
+     * adds a normal ordering to the pallets based on location
+     */
     override fun compareTo(other: Pallet): Int {
         return palletLoc.compareTo(other.palletLoc)
     }
 
+    /**
+     * gets the description of a pallet for UI
+     */
     fun getDisplayStr(): String {
         val pId = id.toString().takeLast(6)
         return "PalletId: $pId, Warehouse: ${palletLoc.wareNo}, Aisle: ${palletLoc.aisle}, " +
@@ -42,6 +48,9 @@ data class Pallet(
         return status == PalletStatus.TRAN
     }
 
+    /**
+     * Makes the relevant changes while receiving pallet in a new warehouse
+     */
     fun receivePallet(newPalletLoc: PalletLoc) {
         if (isPalletInShipping()) {
             status = PalletStatus.STAT
@@ -50,6 +59,9 @@ data class Pallet(
         }
     }
 
+    /**
+     * Static functions
+     */
     companion object {
         /**
          * Creates the pallets for an item
@@ -71,6 +83,9 @@ data class Pallet(
     }
 }
 
+/**
+ * Records the location of the pallet
+ */
 data class PalletLoc(
     var wareNo: Long,
     var aisle: Int,
