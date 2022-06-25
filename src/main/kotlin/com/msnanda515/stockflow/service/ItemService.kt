@@ -42,11 +42,13 @@ class ItemService(
      * Creates and persists an item using the details from itemVM
      */
     fun createItem(itemVm: ItemVM) {
+        // verify item does not already exist
         var itemExists = itemRepository.findAllByItemNo(itemVm.itemNo).isNotEmpty()
         if (itemExists) {
             throw AlreadyExistsException("Item with Item No ${itemVm.itemNo} already exists")
         }
 
+        // prepare the item from the VM
         var item = Item.createItem(itemVm)
         // get the pallets required for the item
         if (itemVm.units > 0) {
@@ -85,7 +87,7 @@ class ItemService(
         val palletLocs = warehouseService.getAvailablePalletPos(palletsRequired, wareNo)
         val pallets = Pallet.createPalletsForItem(item.itemNo, units, palletLocs, palletsRequired,
             item.department.palleteCap)
-        // store the pallet ifo
+        // store the pallet info
         item.pallets.addAll(pallets)
         addPalletsToWarehouse(wareNo, pallets)
     }
@@ -95,10 +97,12 @@ class ItemService(
      * @throws DoesNotExistsException if warehouse with wareNo does not exist
      */
     fun addPalletsToWarehouse(wareNo: Long, pallets: List<Pallet>) {
+        // verify that the warehouse exist
         val wares = warehouseRepository.findByWareNo(wareNo)
         if (wares.isEmpty()) {
             throw DoesNotExistsException("Warehouse with $wareNo does not exist")
         }
+        // add the pallets to the warehouse
         val ware = wares[0]
         ware.pallets.addAll(pallets)
         warehouseRepository.save(ware)
@@ -108,6 +112,8 @@ class ItemService(
      * Returns an available item no to be configured as the default value for the form
      */
     fun getNextItemNo(): Long {
+        // find the maximum item no used so far, and increments it
+        // TODO: Can avoid db call by caching maximum id
         return (itemRepository.findTopByOrderByItemNoDesc()?.itemNo ?: 0) + 1
     }
 
@@ -116,10 +122,12 @@ class ItemService(
      * @throws DoesNotExistsException if item with itemNo does not exist
      */
     fun getItem(itemNo: Long): Item {
+        // verify item exists
         val items = itemRepository.findAllByItemNo(itemNo)
         if (items.isEmpty()) {
             throw DoesNotExistsException("Item with $itemNo does not exist")
         }
+
         return items[0]
     }
 
@@ -129,16 +137,19 @@ class ItemService(
      * @throws DoesNotMatchException if the item's department does not match with expected
      */
     fun editItem(itemVm: ItemVM) {
+        // verify item exists
         val items = itemRepository.findAllByItemNo(itemVm.itemNo)
         if (items.isEmpty()) {
             throw DoesNotExistsException("Item with ${itemVm.itemNo} does not exist")
         }
         val item = items[0]
+        // not allowed to change department of item, pallet capacity correlation
         if (item.department != itemVm.department) {
             throw DoesNotMatchException("Item's department does not match, expected ${item.department}" +
                     ", got ${itemVm.department}")
         }
 
+        // save the new information
         item.name = itemVm.name
         item.description = itemVm.description
         itemRepository.save(item)
@@ -149,18 +160,21 @@ class ItemService(
      * @throws DoesNotExistsException if item does not exist
      */
     fun deleteItem(itemVm: ItemVM) {
+        // verify item exists
         val items = itemRepository.findAllByItemNo(itemVm.itemNo)
         if (items.isEmpty()) {
             throw DoesNotExistsException("Item with ${itemVm.itemNo} does not exist")
         }
         val item = items[0]
+
+        // delete pallets for the item and set the item to inactive
         warehouseService.deletePalletsForItem(item)
-        // set the item status to inactive
         item.status = ItemStatus.INACTIVE
         itemRepository.save(item)
     }
 
     /**
+     * Ships items, update pallets in warehouse as needed
      * @throws InvalidRequestException if the no of item units does not match with the ids
      */
     fun shipItems(shipmentVm: ShipmentVM) {
@@ -172,41 +186,54 @@ class ItemService(
             throw InvalidRequestException("Requested item units (${shippedItemUnits.size}) and " +
                     "ids (${shippedItemIds.size}) does not match")
         }
+        // prepare a map for shipped items (id -> units) for efficient lookup
         shippedItems = shippedItemIds.zip(shippedItemUnits).toMap()
 
+        // get the shipped items from db
         var items = itemRepository.findAll()
         items = items.filter { shippedItems.containsKey(it.itemNo) }
+        // gather the shipment info
         val tempShipment = Shipment(from = shipmentVm.from, to = shipmentVm.to, units = 0)
-        val deletePalletsWare = mutableSetOf<ObjectId>()
-        val updatePalletsWare = mutableMapOf<ObjectId, Int>()
+        val deletePalletsWare = mutableSetOf<ObjectId>() // delete pallets from shippedFrom ware
+        val updatePalletsWare = mutableMapOf<ObjectId, Int>() // update pallets in shippedFrom ware
         items.forEach {
+            // ship the required units for item
             val (delPal, updPal) = it.shipItem(shippedItems[it.itemNo]!!, tempShipment)
             // append to the sets and update warehouse later to optimize process
             deletePalletsWare += delPal
             updatePalletsWare += updPal
         }
+        // update the pallets info in shippedFrom ware
+        // pallets in shippedTo updated at delivery for distributed response time
         warehouseService.shipItemsWarehouse(tempShipment.from, deletePalletsWare, updatePalletsWare)
         itemRepository.saveAll(items)
     }
 
     /**
      * Gets the items for a warehouse in shipping
+     * Returns:
+     *  - List<ReceivingVM>: list of shipments including the items in those shipments
      */
     fun getItemsInReceivingForWarehouse(wareNo: Long): List<ReceivingVM> {
         val receivingMap: MutableMap<ObjectId, ReceivingVM> = mutableMapOf()
         val items = itemRepository.findAllByStatus(ItemStatus.ACTIVE)
         for (it in items) {
             for (p in it.pallets) {
+                // find pallets being shipped to selected warehouse
                 if (p.isPalletInShipping() && p.shipment != null && p.shipment!!.to == wareNo) {
                     val shipment = p.shipment!!
+                    // if first pallet from particular shipment, prepare the receiving vm for shipment
                     if (!receivingMap.containsKey(shipment.id)) {
                         receivingMap[shipment.id] = ReceivingVM(shipment.id, shipment.from, shipment.to)
                     }
                     val shipFromMap = receivingMap[shipment.id]!!
+
+                    // if first pallet for this item in shipment, prepare the item vm for receiving vm
                     if (shipFromMap.items.isEmpty() || shipFromMap.items.last().itemNo != it.itemNo) {
                         val itemVm = ItemVM(it.itemNo, it.name, it.description, it.department, wareNo, 0)
                         shipFromMap.items.add(itemVm)
                     }
+                    // add units to prepared VMs
                     shipFromMap.items.last().units += p.units
                 }
             }
@@ -221,21 +248,26 @@ class ItemService(
      * todo: add the shipments to history os shipments for items for record
      */
     fun receiveShipment(shipmentIdsStr: String, wareNo: Long) {
+        // get the shipment ids to receive for the selected warehouse
         val shipmentIds = shipmentIdsStr.split(",").toSet()
+        // find all pallets which are shipped
         val palletsShipped = mutableListOf<Pallet>()
         val items = itemRepository.findAllByStatus(ItemStatus.ACTIVE)
-        // find all pallets which are shipped
         for (it in items) {
             for (p in it.pallets) {
+                // if pallet is the shipment being processed
                 if (p.isPalletInShipping() && p.shipment != null && shipmentIds.contains(p.shipment!!.id.toString())){
+                    // and pallet is going to the correct warehouse
                     if (p.shipment!!.to != wareNo) {
                         throw InvalidRequestException("The shipment no does not match with the records")
                     }
+                    // receive pallet
                     palletsShipped.add(p)
                 }
             }
         }
 
+        // update warehouse receiving shipment
         val wares = warehouseRepository.findByWareNo(wareNo)
         if (wares.isEmpty()) {
             throw InvalidRequestException("The requested warehouse does not exist")

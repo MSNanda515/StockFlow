@@ -41,8 +41,13 @@ data class Item(
 
     /**
      * Ships pallets from one warehouse to another
+     *
+     * Returns:
+     *  - deletePalletsWare (MutableSet<ObjectId>): used to delete the pallets from the shippedFrom warehouse
+     *  - palletsUpdated (MutableMap<ObjectId, Int>): palletId -> newUnits, update the pallet information in
      */
     fun shipItem(units: Int, tempShipment: Shipment): Pair<MutableSet<ObjectId>, MutableMap<ObjectId, Int>> {
+        // check if enough items in warehouse
         if (getUnitsInWare(tempShipment.from) < units) {
             throw InvalidRequestException("Not enough units in warehouse")
         }
@@ -54,12 +59,14 @@ data class Item(
 
         for (i in 0 until pallets.size) {
             val it = pallets[i]
+            // if pallet in warehouse and isn't being shipped, try shipping it
             if (it.palletLoc.wareNo == shipment.from && !it.isPalletInShipping()) {
                 if (itemsAlloc == units) {
                     // all items allocated
                     break
                 }
                 if (it.units <= (units-itemsAlloc)) {
+                    // entire pallet can be shipped
                     shipPallet(it, shipment)
                     deletePalletsWare.add(it.id)
                     itemsAlloc += it.units
