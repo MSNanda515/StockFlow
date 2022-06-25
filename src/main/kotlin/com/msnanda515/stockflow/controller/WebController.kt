@@ -53,7 +53,6 @@ class WebController(
         model.addAttribute("ware", wareVm)
         model.addAttribute("googleApiKey", env.getProperty("mnanda.google.api.key"))
 
-
         Util.addModelAttributesNavbar(
             model, "Warehouse", wares
         )
@@ -65,8 +64,16 @@ class WebController(
      */
     @PostMapping("/warehouse/create")
     fun postCreateWarehouse(@Valid @ModelAttribute("ware") wareVm: WarehouseVM,
-        bindingResult: BindingResult): String {
+        bindingResult: BindingResult, model: Model): String {
+        fun setCustFailModel() {
+            val wares = warehouseService.getAllWarehouses()
+            model.addAttribute("googleApiKey", env.getProperty("mnanda.google.api.key"))
+            Util.addModelAttributesNavbar(
+                model, "Warehouse", wares
+            )
+        }
         if (bindingResult.hasErrors()) {
+            setCustFailModel()
             return "createWarehouse"
         } else {
             return try {
