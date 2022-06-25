@@ -17,7 +17,7 @@ const val MIN_LEVEL = 4L
 data class Warehouse(
     var wareNo: Long,
     var name: String,
-    var location: String,
+    var location: Location,
     var pallets: MutableList<Pallet> = mutableListOf(),
     var capacity: WarehouseCapacity = WarehouseCapacity(),
     @Id
@@ -33,7 +33,7 @@ data class Warehouse(
             return Warehouse(
                 wareNo = wareVm.wareNo,
                 name = wareVm.name,
-                location = wareVm.location,
+                location = Location.createLocation(wareVm),
                 capacity = WarehouseCapacity(wareVm.aisle, wareVm.section, wareVm.level)
             )
         }
@@ -129,13 +129,20 @@ class WarehouseVM(
     @field:NotBlank
     var name: String,
     @field:NotBlank
-    var location: String,
+    var address: String,
     @field:Min(MIN_AISLE)
     var aisle: Int = 200,
     @field:Min(MIN_SECTION)
     var section: Int = 10,
     @field:Min(MIN_LEVEL)
     var level: Int = 4,
+    var street_number: String = "",
+    var city: String = "",
+    var state: String = "",
+    var country: String = "",
+    var postal_code: String = "",
+    var lat: Double = 0.0,
+    var lng: Double = 0.0,
 ) {
     companion object {
         /**
@@ -145,7 +152,7 @@ class WarehouseVM(
             return WarehouseVM(
                 wareNo = 1,
                 name = "Name",
-                location = "Location"
+                address = ""
             )
         }
 
@@ -156,7 +163,7 @@ class WarehouseVM(
             return WarehouseVM(
                 wareNo = ware.wareNo,
                 name = ware.name,
-                location = ware.location,
+                address = ware.location.toString(),
                 aisle = ware.capacity.aisle,
                 section = ware.capacity.section,
                 level = ware.capacity.level
@@ -167,11 +174,11 @@ class WarehouseVM(
     fun setDefaultValues(wareNo: Long) {
         this.wareNo = wareNo
         this.name = "Ware $wareNo"
-        this.location = "Loc $wareNo"
+        this.address = ""
     }
 
     fun getDisplayStr(): String {
-        return "Warehouse No: $wareNo, Name: $name, Location: $location, Capacity: ($aisle, $section, $level)"
+        return "Warehouse No: $wareNo, Name: $name, Location: ($address), Capacity: ($aisle, $section, $level)"
     }
 }
 

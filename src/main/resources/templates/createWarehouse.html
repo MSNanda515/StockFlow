@@ -4,6 +4,8 @@
 <span th:insert="fragments/navbar.html"> </span>
 
 <!--Content-->
+
+
 <div class="container-fluid mx-auto px-5 py-4">
     <h1>Create Warehouse</h1>
     <form th:object="${ware}" th:action="@{/warehouse/create}" method="post" class="row g-3">
@@ -21,9 +23,18 @@
             <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger">error</span>
         </div>
         <div class="mb-3 col-md-12">
-            <label for="wareLoc" class="form-label">Location</label>
-            <input class="form-control" id="wareLoc" th:field="*{location}"/>
-            <span th:if="${#fields.hasErrors('location')}" th:errors="*{location}" class="text-danger">error</span>
+            <label for="autocompleteLoc" class="form-label">Location</label>
+            <input class="form-control" id="autocompleteLoc"/>
+            <span th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="text-danger">error</span>
+
+            <input type="hidden" class="form-control" th:field="*{address}" id="formatted_address">
+            <input type="hidden" class="form-control" th:field="*{street_number}" id="street_number">
+            <input type="hidden" class="form-control" th:field="*{city}" id="locality">
+            <input type="hidden" class="form-control" th:field="*{state}" id="administrative_area_level_1">
+            <input type="hidden" class="form-control" th:field="*{country}" id="country">
+            <input type="hidden" class="form-control" th:field="*{postal_code}" id="postal_code">
+            <input type="hidden" class="form-control" th:field="*{lat}" id="lat">
+            <input type="hidden" class="form-control" th:field="*{lng}" id="lng">
         </div>
         <h3>Capacity</h3>
         <div class="mb-3 col-md-4">
@@ -43,8 +54,58 @@
         </div>
         <button type="submit" class="btn btn-primary">Create</button>
     </form>
-
 </div>
+
+<!-- Places API -->
+<script
+        th:attr="src=@{|https://maps.googleapis.com/maps/api/js?key=${googleApiKey}&libraries=places|}"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBm4aBivaeY_iajb6GmsSDLCxcNjXB0U34&libraries=places">
+</script>
+
+<script type="text/javascript">
+    window.addEventListener('load', initAutocomplete);
+
+    /**
+     * Add autocomplete feature to address bar
+     */
+    function initAutocomplete() {
+        const options = {
+            componentRestrictions: { country: ["ca", "us"] },
+            fields: ["formatted_address", "address_components", "geometry"],
+            strictBounds: false,
+            types: ["establishment"],
+        };
+        const autocompleteInput = document.getElementById('autocompleteLoc')
+        let places = new google.maps.places.Autocomplete(autocompleteInput, options);
+        google.maps.event.addListener(places, 'place_changed', function () {
+            let place = places.getPlace();
+            fillValues(place)
+        });
+    }
+
+    /**
+     * Fills the required fields in the address
+     * @param place: the google map api response for the entered address
+     */
+    function fillValues(place) {
+        let components = {}
+        for (let c of place.address_components) {
+            for (let t of c.types) {
+                components[t] = c.long_name;
+            }
+        }
+        components['lat'] = place.geometry.location.lat().toFixed(2);
+        components['lng'] = place.geometry.location.lng().toFixed(2);
+        components['formatted_address'] = place.formatted_address;
+        let inputIds = ['formatted_address', 'street_number', 'locality', 'administrative_area_level_1', 'postal_code', 'country', 'lat', 'lng']
+        for (let it of inputIds) {
+            if (it in components) {
+                let field = document.getElementById(it)
+                field.value = components[it];
+            }
+        }
+    }
+</script>
 
 <!--Footer-->
 <span th:insert="fragments/footer.html"> </span>

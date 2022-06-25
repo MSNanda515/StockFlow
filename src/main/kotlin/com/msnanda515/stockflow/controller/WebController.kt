@@ -4,6 +4,7 @@ import com.msnanda515.stockflow.exception.*
 import com.msnanda515.stockflow.model.*
 import com.msnanda515.stockflow.service.ItemService
 import com.msnanda515.stockflow.service.WarehouseService
+import org.springframework.core.env.Environment
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
@@ -22,6 +23,7 @@ import javax.validation.Valid
 class WebController(
     private val itemService: ItemService,
     private val warehouseService: WarehouseService,
+    private val env: Environment,
 ) {
 
     /**
@@ -49,6 +51,9 @@ class WebController(
         val wares = warehouseService.getAllWarehouses()
         wareVm.setDefaultValues(warehouseService.getNextWarehouseNo())
         model.addAttribute("ware", wareVm)
+        model.addAttribute("googleApiKey", env.getProperty("mnanda.google.api.key"))
+
+
         Util.addModelAttributesNavbar(
             model, "Warehouse", wares
         )
