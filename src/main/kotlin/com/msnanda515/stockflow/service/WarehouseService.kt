@@ -84,7 +84,7 @@ class WarehouseService(
 
         val ware = wares[0]
         ware.name = wareVm.name
-        ware.location = Location.createLocation(wareVm)
+        // ware.location = Location.createLocation(wareVm)
         val newCapacity = WarehouseCapacity(wareVm.aisle, wareVm.section, wareVm.level)
         val oldCapacity = ware.capacity
         if (!ware.capacity.equals(newCapacity)) {
