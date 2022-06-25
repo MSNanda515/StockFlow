@@ -73,7 +73,6 @@
             componentRestrictions: { country: ["ca", "us"] },
             fields: ["formatted_address", "address_components", "geometry"],
             strictBounds: false,
-            types: ["establishment"],
         };
         const autocompleteInput = document.getElementById('autocompleteLoc')
         let places = new google.maps.places.Autocomplete(autocompleteInput, options);

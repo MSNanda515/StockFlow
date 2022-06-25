@@ -64,7 +64,22 @@
     </H2>
 
     <div th:if="${isWareSelected}" class="mb-4">
-        <span th:text="${selectedWare.getDisplayStr()}"></span>
+        <div>
+            <span th:text="${selectedWare.getDisplayStr()}"></span>
+
+            <!--Display weather-->
+            <span>, Weather:&nbsp;</span>
+            <span id="wareWeather">
+                Loading...
+            </span>
+            <span style="display: none" id="wareLat" th:text="${selectedWare.lat}"></span>
+            <span style="display: none" id="wareLng" th:text="${selectedWare.lng}"></span>
+            <span style="display: none" id="weatherApiKey" th:text="${weatherApiKey}"></span>
+            <script>
+            </script>
+        </div>
+
+
     </div>
 
     <div class="accordion" id="accordionItems">
@@ -134,7 +149,31 @@
 
     </div>
 
+    <script th:if="${isWareSelected}">
+        async function loadWeather() {
+            // get the elements with the required data
+            let wareLat = document.getElementById("wareLat").innerText;
+            let wareLng = document.getElementById("wareLng").innerText;
+            let weatherApiKey = document.getElementById("weatherApiKey").innerText;
 
+            // make the request
+            let weatherApi = `http://api.weatherapi.com/v1/current.json?key=${weatherApiKey}`
+                    + `&q=${wareLat},${wareLng}&aqi=no`;
+            let weatherResp = await fetch(weatherApi);
+            weatherResp = await weatherResp.json();
+
+            // fill the data on UI
+            let currentText = weatherResp.current.condition.text;
+            let currentIcon = weatherResp.current.condition.icon;
+            let wareWeather = document.getElementById("wareWeather");
+            let imageEl = document.createElement("img");
+            imageEl.src = `https:${currentIcon}`;
+            wareWeather.innerText = currentText
+            wareWeather.appendChild(imageEl);
+        }
+
+        window.addEventListener('load', loadWeather);
+    </script>
 
 </div>
 

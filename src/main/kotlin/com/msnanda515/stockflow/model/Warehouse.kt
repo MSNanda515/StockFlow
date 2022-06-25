@@ -166,7 +166,9 @@ class WarehouseVM(
                 address = ware.location.toString(),
                 aisle = ware.capacity.aisle,
                 section = ware.capacity.section,
-                level = ware.capacity.level
+                level = ware.capacity.level,
+                lat = ware.location.lat,
+                lng = ware.location.lon,
             )
         }
     }

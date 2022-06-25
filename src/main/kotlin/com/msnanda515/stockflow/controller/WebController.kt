@@ -228,6 +228,8 @@ class WebController(
         val wares = warehouseService.getAllWarehouses()
         val itemVms = items.map { ItemVM.prepareVM(it) }
         val selectedWare = wares.find { it.wareNo==wareNo }
+        val weatherApiKey = env.getProperty("mnanda.weather.api.key")
+        model.addAttribute("weatherApiKey", weatherApiKey)
 
         // pass required objects to model
         Util.addModelAttributesDash(
