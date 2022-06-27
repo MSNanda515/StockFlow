@@ -25,8 +25,8 @@
         </div>
         <div class="mb-3 col-md-12">
             <label for="wareLoc" class="form-label">Location</label>
-            <input class="form-control" id="wareLoc" th:field="*{location}"/>
-            <span th:if="${#fields.hasErrors('location')}" th:errors="*{location}" class="text-danger">error</span>
+            <input class="form-control" id="wareLoc" th:field="*{address}" readonly/>
+            <span th:if="${#fields.hasErrors('address')}" th:errors="*{address}" class="text-danger">error</span>
         </div>
 
         <h3>Capacity</h3>

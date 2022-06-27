@@ -4,6 +4,7 @@ import com.msnanda515.stockflow.exception.*
 import com.msnanda515.stockflow.model.*
 import com.msnanda515.stockflow.service.ItemService
 import com.msnanda515.stockflow.service.WarehouseService
+import org.springframework.core.env.Environment
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
@@ -22,6 +23,7 @@ import javax.validation.Valid
 class WebController(
     private val itemService: ItemService,
     private val warehouseService: WarehouseService,
+    private val env: Environment,
 ) {
 
     /**
@@ -49,6 +51,8 @@ class WebController(
         val wares = warehouseService.getAllWarehouses()
         wareVm.setDefaultValues(warehouseService.getNextWarehouseNo())
         model.addAttribute("ware", wareVm)
+        model.addAttribute("googleApiKey", env.getProperty("mnanda.google.api.key"))
+
         Util.addModelAttributesNavbar(
             model, "Warehouse", wares
         )
@@ -60,8 +64,16 @@ class WebController(
      */
     @PostMapping("/warehouse/create")
     fun postCreateWarehouse(@Valid @ModelAttribute("ware") wareVm: WarehouseVM,
-        bindingResult: BindingResult): String {
+        bindingResult: BindingResult, model: Model): String {
+        fun setCustFailModel() {
+            val wares = warehouseService.getAllWarehouses()
+            model.addAttribute("googleApiKey", env.getProperty("mnanda.google.api.key"))
+            Util.addModelAttributesNavbar(
+                model, "Warehouse", wares
+            )
+        }
         if (bindingResult.hasErrors()) {
+            setCustFailModel()
             return "createWarehouse"
         } else {
             return try {
@@ -216,6 +228,8 @@ class WebController(
         val wares = warehouseService.getAllWarehouses()
         val itemVms = items.map { ItemVM.prepareVM(it) }
         val selectedWare = wares.find { it.wareNo==wareNo }
+        val weatherApiKey = env.getProperty("mnanda.weather.api.key")
+        model.addAttribute("weatherApiKey", weatherApiKey)
 
         // pass required objects to model
         Util.addModelAttributesDash(

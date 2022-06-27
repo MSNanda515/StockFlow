@@ -41,8 +41,13 @@ data class Item(
 
     /**
      * Ships pallets from one warehouse to another
+     *
+     * Returns:
+     *  - deletePalletsWare (MutableSet<ObjectId>): used to delete the pallets from the shippedFrom warehouse
+     *  - palletsUpdated (MutableMap<ObjectId, Int>): palletId -> newUnits, update the pallet information in
      */
     fun shipItem(units: Int, tempShipment: Shipment): Pair<MutableSet<ObjectId>, MutableMap<ObjectId, Int>> {
+        // check if enough items in warehouse
         if (getUnitsInWare(tempShipment.from) < units) {
             throw InvalidRequestException("Not enough units in warehouse")
         }
@@ -54,12 +59,14 @@ data class Item(
 
         for (i in 0 until pallets.size) {
             val it = pallets[i]
+            // if pallet in warehouse and isn't being shipped, try shipping it
             if (it.palletLoc.wareNo == shipment.from && !it.isPalletInShipping()) {
                 if (itemsAlloc == units) {
                     // all items allocated
                     break
                 }
                 if (it.units <= (units-itemsAlloc)) {
+                    // entire pallet can be shipped
                     shipPallet(it, shipment)
                     deletePalletsWare.add(it.id)
                     itemsAlloc += it.units
@@ -127,7 +134,20 @@ class ItemVM(
     var units: Int = 0,
     var pallets: MutableList<Pallet> = mutableListOf()
 ) {
+    /**
+     * Used as static functions
+     */
     companion object {
+        /**
+         * Gets the attribute names for the object
+         */
+        fun getAttributeNames(): List<String> {
+            return listOf("Item No", "Name", "Description", "Department", "Units")
+        }
+
+        /**
+         * Creates an empty ItemVM
+         */
         fun createItem(): ItemVM {
             return ItemVM(
                 itemNo = 1,
@@ -137,6 +157,9 @@ class ItemVM(
             )
         }
 
+        /**
+         * Prepares an itemVM from item object without the units
+         */
         fun initItemVm(item: Item): ItemVM {
             return ItemVM(
                 itemNo = item.itemNo,
@@ -148,7 +171,7 @@ class ItemVM(
         }
 
         /**
-         * Prepares the view model from the Item object
+         * Prepares the view model from the Item object with the correct units
          */
         fun prepareVM(item: Item): ItemVM {
             val itemVm = initItemVm(item)
@@ -170,10 +193,22 @@ class ItemVM(
         }
     }
 
+    fun getCsvData(): String {
+        var attrMembers = listOf("$itemNo", "$name", description, "$department", "$units")
+        attrMembers = attrMembers.map { it.replace(",", "-") }
+        return attrMembers.joinToString(",")
+    }
+
+    /**
+     * Gets the display description for object for UI
+     */
     fun getDisplayStr(): String {
         return "Item No: $itemNo, Name: $name, Desc: $description, Dep: $department, Units: $units"
     }
 
+    /**
+     * Prepares string representation for object
+     */
     override fun toString(): String {
         return getDisplayStr()
     }
@@ -200,8 +235,7 @@ enum class ItemStatus(disp: String) {
 }
 
 /**
- * Represents the departments to group
- * items
+ * Represents the departments to group items
  */
 enum class Department(val disp: String, val palleteCap: Int) {
     @JsonProperty("grocery") GRCY("Grocery", 50), // Grocery
