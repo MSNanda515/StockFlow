@@ -284,4 +284,21 @@ class ItemService(
         warehouseRepository.save(ware)
         itemRepository.saveAll(items)
     }
+
+    /**
+     * Gets the csv for the items in the warehouse
+     */
+    fun getCsvForWarehouse(wareNo: Long): String {
+        // get active items in warehouse
+        val items = getActiveItemsInWarehouse(wareNo)
+        val itemVms = items.map { ItemVM.prepareVM(it) }
+
+        // prepare the csv using the data
+        val csvData = StringBuilder()
+        csvData.append(ItemVM.getAttributeNames().joinToString(","))
+        itemVms.forEach {
+            csvData.append("\n").append(it.getCsvData())
+        }
+        return csvData.toString()
+    }
 }

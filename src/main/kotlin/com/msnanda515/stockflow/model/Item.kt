@@ -139,6 +139,13 @@ class ItemVM(
      */
     companion object {
         /**
+         * Gets the attribute names for the object
+         */
+        fun getAttributeNames(): List<String> {
+            return listOf("Item No", "Name", "Description", "Department", "Units")
+        }
+
+        /**
          * Creates an empty ItemVM
          */
         fun createItem(): ItemVM {
@@ -184,6 +191,10 @@ class ItemVM(
             }
             return itemVm
         }
+    }
+
+    fun getCsvData(): String {
+        return "$itemNo,$name,$description,$department,$units";
     }
 
     /**

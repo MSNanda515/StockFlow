@@ -53,16 +53,35 @@
         </span>
     </div>
 
-    <!--Items-->
-    <H2 class="mt-5">
-        Items: <span th:text="${selectedWareName}">All Items</span>
-        <span th:if="${isWareSelected}">
-            <a  class="ms-3" th:href="@{/warehouse/edit/{id}(id=${selectedWare.wareNo})}">
-                <i class="fa fa-edit text-info h4"></i></button>
+    <!--Warehouse Name-->
+    <H2 class="mt-5 d-flex flex-row mb-3" style="align-items: center;">
+        <div>
+            Items: <span th:text="${selectedWareName}">All Items</span>
+        </div>
+
+        <!--Edit warehouse if selected-->
+        <div th:if="${isWareSelected}" class="ms-3">
+            <a th:href="@{/warehouse/edit/{id}(id=${selectedWare.wareNo})}">
+                <i class="fa fa-edit text-info"></i></button>
             </a>
-        </span>
+        </div>
+
+        <!--Download data on page-->
+        <div class="dropdown ms-3">
+            <a class="text-dark" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false"
+               style="text-decoration: none;">
+                <i class="fa-solid fa-arrow-down"></i>
+            </a>
+
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <span style="display: none" th:if="${isWareSelected}" th:text="${selectedWare.wareNo}" id="csvDownloadWareNo"></span>
+                <span style="display: none" th:unless="${isWareSelected}"  id="csvDownloadWareNo">0</span>
+                <li><button class="dropdown-item" onclick="downloadWarehouseData('csv')">Download CSV</button></li>
+            </ul>
+        </div>
     </H2>
 
+    <!--Warehouse info-->
     <div th:if="${isWareSelected}" class="mb-4">
         <div>
             <span th:text="${selectedWare.getDisplayStr()}"></span>
@@ -82,6 +101,7 @@
 
     </div>
 
+    <!--Items-->
     <div class="accordion" id="accordionItems">
 
         <!--Accordion items-->
@@ -173,6 +193,49 @@
         }
 
         window.addEventListener('load', loadWeather);
+    </script>
+
+    <script>
+        let allowedDataTypes = new Set();
+        allowedDataTypes.add("csv");
+
+        /**
+         * Downloads the warehouse data in the given format
+         * @param dataType the data type to request
+         */
+        async function downloadWarehouseData(dataType) {
+            if (!allowedDataTypes.has(dataType)) {
+                console.log(`Err: ${dataType} isn't supported`);
+                return;
+            }
+            let respData = await getDownloadData(dataType);
+            addDownloadData(respData)
+        };
+
+        /**
+         * Gets the data in the required format
+         */
+        async function getDownloadData(dataType) {
+            let wareNo = parseInt(document.getElementById("csvDownloadWareNo").innerText);
+            let baseUrl = window.location.origin;
+            let getDataUrl = `${baseUrl}/api/v1/warehouses/data/${dataType}/${wareNo}`;
+            let respData = await fetch(getDataUrl);
+            respData = await respData.json()
+            return respData;
+        }
+
+        /**
+         * Downloads the loaded file
+         */
+        function addDownloadData(respData) {
+            let downloadElement = document.createElement('a');
+            downloadElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(respData.data);
+            downloadElement.target = '_blank';
+            //provide the name for the CSV file to be downloaded
+            downloadElement.download = respData.filename;
+            document.body.appendChild(downloadElement);
+            downloadElement.click();
+        }
     </script>
 
 </div>
