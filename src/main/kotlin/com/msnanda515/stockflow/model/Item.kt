@@ -194,7 +194,9 @@ class ItemVM(
     }
 
     fun getCsvData(): String {
-        return "$itemNo,$name,$description,$department,$units";
+        var attrMembers = listOf("$itemNo", "$name", description, "$department", "$units")
+        attrMembers = attrMembers.map { it.replace(",", "-") }
+        return attrMembers.joinToString(",")
     }
 
     /**
